@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: MIT
 
 #include "SlicesWriterTbb.h"
+#include <iomanip>
 #include <array>
 #include <memory>
 #include <string>
@@ -75,6 +76,28 @@ void CziSlicesWriterTbb::WriteWorker()
 
             add_subblock_info.ptrData = sub_block_write_info.add_slice_info.subblock_raw_data->GetPtr();
             add_subblock_info.dataSize = sub_block_write_info.add_slice_info.subblock_raw_data->GetSizeOfData();
+
+            auto guid = sub_block_write_info.add_slice_info.retiling_id;
+            std::ostringstream oss;
+            oss << "<METADATA><Tags><RetilingId>"
+                << std::hex << std::uppercase
+                << std::setw(8) << std::setfill('0') << guid.Data1 << '-'
+                << std::setw(4) << std::setfill('0') << guid.Data2 << '-'
+                << std::setw(4) << std::setfill('0') << guid.Data3 << '-'
+                << std::setw(2) << static_cast<int>(guid.Data4[0])
+                << std::setw(2) << static_cast<int>(guid.Data4[1]) << '-'
+                << std::setw(2) << static_cast<int>(guid.Data4[2])
+                << std::setw(2) << static_cast<int>(guid.Data4[3])
+                << std::setw(2) << static_cast<int>(guid.Data4[4])
+                << std::setw(2) << static_cast<int>(guid.Data4[5])
+                << std::setw(2) << static_cast<int>(guid.Data4[6])
+                << std::setw(2) << static_cast<int>(guid.Data4[7])
+                << std::dec
+                <<"</RetilingId></Tags></METADATA>";
+
+            const string metadata_xml = oss.str();
+            add_subblock_info.ptrSbBlkMetadata = metadata_xml.c_str();
+            add_subblock_info.sbBlkMetadataSize = metadata_xml.size();
             this->writer_->SyncAddSubBlock(add_subblock_info);
 
             --this->number_of_slicewrite_operations_in_flight_;

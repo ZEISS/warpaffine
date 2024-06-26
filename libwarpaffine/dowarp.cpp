@@ -40,6 +40,7 @@ public:
     }
 };
 
+
 DoWarp::OutputBrickInfoRepository::OutputBrickInfoRepository(const AppContext& context, const DeskewDocumentInfo& document_info, const Eigen::Matrix4d& transformation_matrix)
 {
     // Here we create a tiling of the output brick - in other words, we ensure that the output-tiles are of a size
@@ -55,12 +56,16 @@ DoWarp::OutputBrickInfoRepository::OutputBrickInfoRepository(const AppContext& c
     //  as the key.
     map<int, int> scene_index_to_m_index;
 
+    int currentZ = -1;
     for (const auto& item : document_info.map_brickid_position)
     { 
         Eigen::Vector3d edge_point;
         Eigen::Vector3d extent;
         DeskewHelpers::CalculateAxisAlignedBoundingBox(item.second.width, item.second.height, document_info.depth, transformation_matrix, edge_point, extent);
         DestinationBrickInfo destination_brick_info;
+
+        // new ID per Z
+        destination_brick_info.retiling_id = Utilities::GenerateGuid();
         destination_brick_info.cuboid.x_position = 0;
         destination_brick_info.cuboid.y_position = 0;
         destination_brick_info.cuboid.z_position = 0;
@@ -312,7 +317,8 @@ void DoWarp::InputBrick(const Brick& brick, const BrickCoordinateInfo& coordinat
             brick.info.pixelType,
             destination_brick_info.tiling[n].rectangle.w,
             destination_brick_info.tiling[n].rectangle.h,
-            destination_brick_info.cuboid.depth);
+            destination_brick_info.cuboid.depth,
+            destination_brick_info.retiling_id);
 
         this->IncWarpTasksInFlight();
         this->context_.GetTaskArena()->AddTask(
@@ -368,6 +374,7 @@ void DoWarp::ProcessBrickCommon2(const Brick& brick, const Brick& destination_br
                 SubblockXYM xym;
                 xym.x_position = rect_and_tile_identifier.rectangle.x + lround(xy_transformed[0]);
                 xym.y_position = rect_and_tile_identifier.rectangle.y + lround(xy_transformed[1]);
+                xym.retiling_id = destination_brick.info.retiling_id;
 
                 // TODO(JBL): we better should use optional for this, not magic values
                 if (Utils::IsValidMindex(rect_and_tile_identifier.m_index))
@@ -406,6 +413,7 @@ void DoWarp::ProcessOutputSlice(OutputSliceToCompressTaskInfo* output_slice_task
     add_slice_info.scene_index = xym.scene_index;
     add_slice_info.x_position = xym.x_position;
     add_slice_info.y_position = xym.y_position;
+    add_slice_info.retiling_id = xym.retiling_id;
     this->writer_->AddSlice(add_slice_info);
     ++this->number_of_subblocks_added_to_writer_;
 
@@ -491,7 +499,7 @@ Brick DoWarp::CreateBrick(libCZI::PixelType pixel_type, std::uint32_t width, std
     return brick;
 }
 
-Brick DoWarp::CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth)
+Brick DoWarp::CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth, libCZI::GUID retiling_id)
 {
     Brick brick;
     brick.info.pixelType = pixel_type;
@@ -500,6 +508,7 @@ Brick DoWarp::CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std
     brick.info.depth = depth;
     brick.info.stride_line = width * Utils::GetBytesPerPixel(pixel_type);
     brick.info.stride_plane = brick.info.stride_line * brick.info.height;
+    brick.info.retiling_id = retiling_id;
     const uint64_t size_of_brick = brick.info.stride_plane * static_cast<uint64_t>(brick.info.depth);
     for (;;)
     {
