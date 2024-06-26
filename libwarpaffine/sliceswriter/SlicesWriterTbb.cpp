@@ -19,7 +19,7 @@ CziSlicesWriterTbb::CziSlicesWriterTbb(AppContext& context, const std::wstring& 
     : context_(context)
 {
     this->queue_.set_capacity(500 * 10);
-
+    this->use_acquisition_tiles_ = context.GetCommandLineOptions().GetUseAcquisitionTiles();
     // Create an "output-stream-object"
     const auto output_stream = libCZI::CreateOutputStreamForFile(filename.c_str(), true);
 
@@ -33,15 +33,15 @@ CziSlicesWriterTbb::CziSlicesWriterTbb(AppContext& context, const std::wstring& 
 
 void CziSlicesWriterTbb::AddSlice(const AddSliceInfo& add_slice_info)
 {
-    int z;
-    add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
-
+    if (this->use_acquisition_tiles_) 
     {
-        std::lock_guard<std::mutex> lock(this->retiling_mutex); // unlocks automatically at end of scope
+        int z;
+        add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
+        std::lock_guard<std::mutex> lock(this->retiling_mutex_); // unlocks automatically at end of scope
         auto key = std::make_pair(z, add_slice_info.slice_id);
-        auto it = this->retilingIds.find(key);
-        if (it == this->retilingIds.end()) {
-            this->retilingIds.insert({ key, Utilities::GenerateGuid() });
+        auto it = this->retilingIds_.find(key);
+        if (it == this->retilingIds_.end()) {
+            this->retilingIds_.insert({ key, Utilities::GenerateGuid() });
         }
     }
 
@@ -91,37 +91,40 @@ void CziSlicesWriterTbb::WriteWorker()
             add_subblock_info.ptrData = sub_block_write_info.add_slice_info.subblock_raw_data->GetPtr();
             add_subblock_info.dataSize = sub_block_write_info.add_slice_info.subblock_raw_data->GetSizeOfData();
 
-            int z;
-            sub_block_write_info.add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
+            if (this->use_acquisition_tiles_) {
+                int z;
+                sub_block_write_info.add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
 
-            auto it = this->retilingIds.find(std::make_pair(z, sub_block_write_info.add_slice_info.slice_id));
-            libCZI::GUID guid;
-            if (it != this->retilingIds.end()){
-                guid = it->second;
-            } else{
-                guid = Utilities::GenerateGuid();
+                auto it = this->retilingIds_.find(std::make_pair(z, sub_block_write_info.add_slice_info.slice_id));
+                libCZI::GUID guid;
+                if (it != this->retilingIds_.end()){
+                    guid = it->second;
+                } else{
+                    guid = Utilities::GenerateGuid();
+                }
+
+                std::ostringstream oss;
+                oss << "<METADATA><Tags><RetilingId>"
+                    << std::hex << std::uppercase
+                    << std::setw(8) << std::setfill('0') << guid.Data1 << '-'
+                    << std::setw(4) << std::setfill('0') << guid.Data2 << '-'
+                    << std::setw(4) << std::setfill('0') << guid.Data3 << '-'
+                    << std::setw(2) << static_cast<int>(guid.Data4[0])
+                    << std::setw(2) << static_cast<int>(guid.Data4[1]) << '-'
+                    << std::setw(2) << static_cast<int>(guid.Data4[2])
+                    << std::setw(2) << static_cast<int>(guid.Data4[3])
+                    << std::setw(2) << static_cast<int>(guid.Data4[4])
+                    << std::setw(2) << static_cast<int>(guid.Data4[5])
+                    << std::setw(2) << static_cast<int>(guid.Data4[6])
+                    << std::setw(2) << static_cast<int>(guid.Data4[7])
+                    << std::dec
+                    <<"</RetilingId></Tags></METADATA>";
+
+                const string metadata_xml = oss.str();
+                add_subblock_info.ptrSbBlkMetadata = metadata_xml.c_str();
+                add_subblock_info.sbBlkMetadataSize = metadata_xml.size();
             }
 
-            std::ostringstream oss;
-            oss << "<METADATA><Tags><RetilingId>"
-                << std::hex << std::uppercase
-                << std::setw(8) << std::setfill('0') << guid.Data1 << '-'
-                << std::setw(4) << std::setfill('0') << guid.Data2 << '-'
-                << std::setw(4) << std::setfill('0') << guid.Data3 << '-'
-                << std::setw(2) << static_cast<int>(guid.Data4[0])
-                << std::setw(2) << static_cast<int>(guid.Data4[1]) << '-'
-                << std::setw(2) << static_cast<int>(guid.Data4[2])
-                << std::setw(2) << static_cast<int>(guid.Data4[3])
-                << std::setw(2) << static_cast<int>(guid.Data4[4])
-                << std::setw(2) << static_cast<int>(guid.Data4[5])
-                << std::setw(2) << static_cast<int>(guid.Data4[6])
-                << std::setw(2) << static_cast<int>(guid.Data4[7])
-                << std::dec
-                <<"</RetilingId></Tags></METADATA>";
-
-            const string metadata_xml = oss.str();
-            add_subblock_info.ptrSbBlkMetadata = metadata_xml.c_str();
-            add_subblock_info.sbBlkMetadataSize = metadata_xml.size();
             this->writer_->SyncAddSubBlock(add_subblock_info);
 
             --this->number_of_slicewrite_operations_in_flight_;

@@ -34,8 +34,9 @@ private:
     };
 
     tbb::concurrent_bounded_queue<SubBlockWriteInfo2> queue_;
-    std::map<std::pair<int, int>, libCZI::GUID> retilingIds;
-    std::mutex retiling_mutex;
+    std::map<std::pair<int, int>, libCZI::GUID> retilingIds_;
+    std::mutex retiling_mutex_;
+    bool use_acquisition_tiles_;
 public:
     CziSlicesWriterTbb(AppContext& context, const std::wstring& filename);
 
