@@ -38,7 +38,7 @@ void CziSlicesWriterTbb::AddSlice(const AddSliceInfo& add_slice_info)
 
     {
         std::lock_guard<std::mutex> lock(this->retiling_mutex); // unlocks automatically at end of scope
-        auto key = std::make_pair(z, add_slice_info.retiling_id);
+        auto key = std::make_pair(z, add_slice_info.slice_id);
         auto it = this->retilingIds.find(key);
         if (it == this->retilingIds.end()) {
             this->retilingIds.insert({ key, Utilities::GenerateGuid() });
@@ -94,7 +94,7 @@ void CziSlicesWriterTbb::WriteWorker()
             int z;
             sub_block_write_info.add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
 
-            auto it = this->retilingIds.find(std::make_pair(z, sub_block_write_info.add_slice_info.retiling_id));
+            auto it = this->retilingIds.find(std::make_pair(z, sub_block_write_info.add_slice_info.slice_id));
             libCZI::GUID guid;
             if (it != this->retilingIds.end()){
                 guid = it->second;

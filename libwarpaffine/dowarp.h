@@ -70,7 +70,7 @@ class DoWarp
         {
             IntCuboid   cuboid;
             std::vector<TilingRectAndMandSceneIndex> tiling;
-            libCZI::GUID retiling_id;
+            int slice_id;
         };
     private:
         std::map<BrickInPlaneIdentifier, DestinationBrickInfo> map_brickid_destinationbrickinfo_;
@@ -184,7 +184,7 @@ private:
     bool IsSubTilingRequired(const IntSize3& size);
     std::vector<libCZI::IntRect> Create2dTiling(const libCZI::IntRect& rectangle);
     Brick CreateBrick(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth);
-    Brick CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth, libCZI::GUID retiling_id);
+    Brick CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth, int slice_id);
 
     void ProcessBrickCommon2(const Brick& brick, const Brick& destination_brick, const BrickCoordinateInfo& coordinate_info, std::uint32_t source_depth, const OutputBrickInfoRepository::TilingRectAndMandSceneIndex& rect_and_tile_identifier /*const libCZI::IntRect& roi,  int m_index*/);
 

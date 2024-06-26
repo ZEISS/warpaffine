@@ -9,7 +9,6 @@
 #include <cstdint>
 #include <algorithm>
 #include <optional>
-#include "inc_libCZI.h"
 
 /// A point with integer coordinates in 3D.
 struct IntPos3
@@ -109,5 +108,5 @@ struct SubblockXYM
     int y_position{ 0 };
     std::optional<int> m_index;         ///< The m-index of the subblock.
     std::optional<int> scene_index;     ///< The scene-index of the subblock.
-    libCZI::GUID retiling_id;
+    int slice_id;
 };
