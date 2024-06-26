@@ -9,6 +9,8 @@
 #include <string>
 #include <tuple>
 #include <utility>
+#include <iostream>
+#include <mutex>
 
 using namespace std;
 using namespace libCZI;
@@ -31,6 +33,18 @@ CziSlicesWriterTbb::CziSlicesWriterTbb(AppContext& context, const std::wstring& 
 
 void CziSlicesWriterTbb::AddSlice(const AddSliceInfo& add_slice_info)
 {
+    int z;
+    add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
+
+    {
+        std::lock_guard<std::mutex> lock(this->retiling_mutex); // unlocks automatically at end of scope
+        auto key = std::make_pair(z, add_slice_info.retiling_id);
+        auto it = this->retilingIds.find(key);
+        if (it == this->retilingIds.end()) {
+            this->retilingIds.insert({ key, Utilities::GenerateGuid() });
+        }
+    }
+
     SubBlockWriteInfo2 info;
     info.add_slice_info = add_slice_info;
     this->queue_.push(info);
@@ -77,7 +91,17 @@ void CziSlicesWriterTbb::WriteWorker()
             add_subblock_info.ptrData = sub_block_write_info.add_slice_info.subblock_raw_data->GetPtr();
             add_subblock_info.dataSize = sub_block_write_info.add_slice_info.subblock_raw_data->GetSizeOfData();
 
-            auto guid = sub_block_write_info.add_slice_info.retiling_id;
+            int z;
+            sub_block_write_info.add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
+
+            auto it = this->retilingIds.find(std::make_pair(z, sub_block_write_info.add_slice_info.retiling_id));
+            libCZI::GUID guid;
+            if (it != this->retilingIds.end()){
+                guid = it->second;
+            } else{
+                guid = Utilities::GenerateGuid();
+            }
+
             std::ostringstream oss;
             oss << "<METADATA><Tags><RetilingId>"
                 << std::hex << std::uppercase

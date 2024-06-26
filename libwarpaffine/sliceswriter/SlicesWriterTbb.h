@@ -9,8 +9,18 @@
 #include <memory>
 #include <atomic>
 #include <thread>
+#include <mutex>
 
 #include <tbb/concurrent_queue.h>
+
+struct GuidAndZIndexComparer {
+    bool operator()(const std::pair<int, libCZI::GUID>& left, const std::pair<int, libCZI::GUID>& right) const {
+        if (left.second != right.second) {
+            return left.second.compare(right.second) < 0;
+        }
+        return left.first < right.first;
+    }
+};
 
 /// Implementation of a ICziSlicesWriter that uses a MPSC-queue to serialize the slice-write operations.
 /// The actual CZI-writing is handled by libCZI.
@@ -33,6 +43,8 @@ private:
     };
 
     tbb::concurrent_bounded_queue<SubBlockWriteInfo2> queue_;
+    std::map<std::pair<int, libCZI::GUID>, libCZI::GUID, GuidAndZIndexComparer> retilingIds;
+    std::mutex retiling_mutex;
 public:
     CziSlicesWriterTbb(AppContext& context, const std::wstring& filename);
 
