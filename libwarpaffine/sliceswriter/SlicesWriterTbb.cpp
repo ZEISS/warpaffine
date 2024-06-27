@@ -106,9 +106,13 @@ void CziSlicesWriterTbb::WriteWorker()
                 const string metadata_xml = oss.str();
                 add_subblock_info.ptrSbBlkMetadata = metadata_xml.c_str();
                 add_subblock_info.sbBlkMetadataSize = metadata_xml.size();
-            }
 
-            this->writer_->SyncAddSubBlock(add_subblock_info);
+                this->writer_->SyncAddSubBlock(add_subblock_info);
+            }
+            else
+            {
+                this->writer_->SyncAddSubBlock(add_subblock_info);
+            }
 
             --this->number_of_slicewrite_operations_in_flight_;
         }
@@ -139,18 +143,18 @@ void CziSlicesWriterTbb::WriteWorker()
     }
 }
 
-libCZI::GUID CziSlicesWriterTbb::CreateRetilingIdWithZandSlice(int z, int slice)
-{
+libCZI::GUID CziSlicesWriterTbb::CreateRetilingIdWithZandSlice(int z, int slice) 
+const {
     libCZI::GUID guid = this-> retilingBaseId_;
-    guid.Data4[0] = static_cast<int8_t>(z >> 24);
-    guid.Data4[1] = static_cast<int8_t>(z >> 16);
-    guid.Data4[2] = static_cast<int8_t>(z >> 8);
-    guid.Data4[3] = static_cast<int8_t>(z);
+    guid.Data4[0] = static_cast<uint8_t>(z >> 24);
+    guid.Data4[1] = static_cast<uint8_t>(z >> 16);
+    guid.Data4[2] = static_cast<uint8_t>(z >> 8);
+    guid.Data4[3] = static_cast<uint8_t>(z);
 
-    guid.Data4[4] = static_cast<int8_t>(slice >> 24);
-    guid.Data4[5] = static_cast<int8_t>(slice >> 16);
-    guid.Data4[6] = static_cast<int8_t>(slice >> 8);
-    guid.Data4[7] = static_cast<int8_t>(slice);
+    guid.Data4[4] = static_cast<uint8_t>(slice >> 24);
+    guid.Data4[5] = static_cast<uint8_t>(slice >> 16);
+    guid.Data4[6] = static_cast<uint8_t>(slice >> 8);
+    guid.Data4[7] = static_cast<uint8_t>(slice);
 
     return guid;
 }
