@@ -17,6 +17,8 @@
 
 #if LIBWARPAFFINE_WIN32_ENVIRONMENT
 #include <Windows.h>
+#else
+#include <random>
 #endif
 
 using namespace std;
