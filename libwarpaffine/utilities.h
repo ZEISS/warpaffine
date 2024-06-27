@@ -104,7 +104,7 @@ public:
 
     static int StrcmpCaseInsensitive(const char* a, const char* b);
     
-    static libCZI::GUID Utilities::GenerateGuid();
+    static libCZI::GUID GenerateGuid();
 };
 
 class IPropBag

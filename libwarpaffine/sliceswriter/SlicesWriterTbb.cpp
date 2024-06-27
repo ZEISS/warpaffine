@@ -20,6 +20,8 @@ CziSlicesWriterTbb::CziSlicesWriterTbb(AppContext& context, const std::wstring& 
 {
     this->queue_.set_capacity(500 * 10);
     this->use_acquisition_tiles_ = context.GetCommandLineOptions().GetUseAcquisitionTiles();
+    this->retilingBaseId_ = Utilities::GenerateGuid();
+
     // Create an "output-stream-object"
     const auto output_stream = libCZI::CreateOutputStreamForFile(filename.c_str(), true);
 
@@ -33,18 +35,6 @@ CziSlicesWriterTbb::CziSlicesWriterTbb(AppContext& context, const std::wstring& 
 
 void CziSlicesWriterTbb::AddSlice(const AddSliceInfo& add_slice_info)
 {
-    if (this->use_acquisition_tiles_) 
-    {
-        int z;
-        add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
-        std::lock_guard<std::mutex> lock(this->retiling_mutex_); // unlocks automatically at end of scope
-        auto key = std::make_pair(z, add_slice_info.slice_id);
-        auto it = this->retilingIds_.find(key);
-        if (it == this->retilingIds_.end()) {
-            this->retilingIds_.insert({ key, Utilities::GenerateGuid() });
-        }
-    }
-
     SubBlockWriteInfo2 info;
     info.add_slice_info = add_slice_info;
     this->queue_.push(info);
@@ -94,15 +84,8 @@ void CziSlicesWriterTbb::WriteWorker()
             if (this->use_acquisition_tiles_) {
                 int z;
                 sub_block_write_info.add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
-
-                auto it = this->retilingIds_.find(std::make_pair(z, sub_block_write_info.add_slice_info.slice_id));
-                libCZI::GUID guid;
-                if (it != this->retilingIds_.end()){
-                    guid = it->second;
-                } else{
-                    guid = Utilities::GenerateGuid();
-                }
-
+                auto guid = this->CreateRetilingIdWithZandSlice(z, sub_block_write_info.add_slice_info.slice_id);
+                
                 std::ostringstream oss;
                 oss << "<METADATA><Tags><RetilingId>"
                     << std::hex << std::uppercase
@@ -154,6 +137,22 @@ void CziSlicesWriterTbb::WriteWorker()
         text << "SlicesWriterTbb-worker crashed: " << exception.what() << ".";
         this->context_.FatalError(text.str());
     }
+}
+
+libCZI::GUID CziSlicesWriterTbb::CreateRetilingIdWithZandSlice(int z, int slice)
+{
+    libCZI::GUID guid = this-> retilingBaseId_;
+    guid.Data4[0] = static_cast<int8_t>(z >> 24);
+    guid.Data4[1] = static_cast<int8_t>(z >> 16);
+    guid.Data4[2] = static_cast<int8_t>(z >> 8);
+    guid.Data4[3] = static_cast<int8_t>(z);
+
+    guid.Data4[4] = static_cast<int8_t>(slice >> 24);
+    guid.Data4[5] = static_cast<int8_t>(slice >> 16);
+    guid.Data4[6] = static_cast<int8_t>(slice >> 8);
+    guid.Data4[7] = static_cast<int8_t>(slice);
+
+    return guid;
 }
 
 void CziSlicesWriterTbb::Close(const std::shared_ptr<libCZI::ICziMetadata>& source_metadata,

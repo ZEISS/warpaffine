@@ -440,7 +440,7 @@ int Utilities::StrcmpCaseInsensitive(const char* a, const char* b)
 
 libCZI::GUID Utilities::GenerateGuid()
 {
-#if defined(_WIN32)
+#if defined(LIBWARPAFFINE_WIN32_ENVIRONMENT)
     ::GUID guid;
     CoCreateGuid(&guid);
     libCZI::GUID guid_value

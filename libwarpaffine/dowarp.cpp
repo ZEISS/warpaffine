@@ -56,16 +56,14 @@ DoWarp::OutputBrickInfoRepository::OutputBrickInfoRepository(const AppContext& c
     //  as the key.
     map<int, int> scene_index_to_m_index;
 
-    int currentZ = -1;
+    int slice_id = 0;
     for (const auto& item : document_info.map_brickid_position)
     { 
         Eigen::Vector3d edge_point;
         Eigen::Vector3d extent;
         DeskewHelpers::CalculateAxisAlignedBoundingBox(item.second.width, item.second.height, document_info.depth, transformation_matrix, edge_point, extent);
         DestinationBrickInfo destination_brick_info;
-        int slice_id = 0;
 
-        // new ID per Z
         destination_brick_info.slice_id = slice_id++;
         destination_brick_info.cuboid.x_position = 0;
         destination_brick_info.cuboid.y_position = 0;
