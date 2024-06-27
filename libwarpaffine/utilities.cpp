@@ -440,7 +440,7 @@ int Utilities::StrcmpCaseInsensitive(const char* a, const char* b)
 
 libCZI::GUID Utilities::GenerateGuid()
 {
-#if defined(LIBWARPAFFINE_WIN32_ENVIRONMENT)
+#if LIBWARPAFFINE_WIN32_ENVIRONMENT
     ::GUID guid;
     CoCreateGuid(&guid);
     libCZI::GUID guid_value
@@ -448,7 +448,7 @@ libCZI::GUID Utilities::GenerateGuid()
         guid.Data1,
             guid.Data2,
             guid.Data3,
-        { guid.Data4[0],guid.Data4[1],guid.Data4[2],guid.Data4[3],guid.Data4[4],guid.Data4[5],guid.Data4[6],guid.Data4[7] } };
+        { guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3], guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7] } };
     return guid_value;
 #else
     std::mt19937 rng;
