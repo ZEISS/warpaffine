@@ -10,7 +10,6 @@
 #include <tuple>
 #include <utility>
 #include <iostream>
-#include <mutex>
 
 using namespace std;
 using namespace libCZI;
@@ -81,11 +80,12 @@ void CziSlicesWriterTbb::WriteWorker()
             add_subblock_info.ptrData = sub_block_write_info.add_slice_info.subblock_raw_data->GetPtr();
             add_subblock_info.dataSize = sub_block_write_info.add_slice_info.subblock_raw_data->GetSizeOfData();
 
-            if (this->use_acquisition_tiles_) {
+            if (this->use_acquisition_tiles_) 
+            {
                 int z;
                 sub_block_write_info.add_slice_info.coordinate.TryGetPosition(libCZI::DimensionIndex::Z, &z);
                 auto guid = this->CreateRetilingIdWithZandSlice(z, sub_block_write_info.add_slice_info.slice_id);
-                
+
                 std::ostringstream oss;
                 oss << "<METADATA><Tags><RetilingId>"
                     << std::hex << std::uppercase
