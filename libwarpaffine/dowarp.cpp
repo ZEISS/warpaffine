@@ -380,7 +380,6 @@ void DoWarp::ProcessBrickCommon2(const Brick& brick, uint32_t brick_id, const Br
                 SubblockXYM xym;
                 xym.x_position = rect_and_tile_identifier.rectangle.x + lround(xy_transformed[0]);
                 xym.y_position = rect_and_tile_identifier.rectangle.y + lround(xy_transformed[1]);
-                //xym.slice_id = destination_brick.info.slice_id;
 
                 // TODO(JBL): we better should use optional for this, not magic values
                 if (Utils::IsValidMindex(rect_and_tile_identifier.m_index))
@@ -513,7 +512,7 @@ Brick DoWarp::CreateBrick(libCZI::PixelType pixel_type, std::uint32_t width, std
     return brick;
 }
 
-Brick DoWarp::CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth/*, int slice_id*/)
+Brick DoWarp::CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth)
 {
     Brick brick;
     brick.info.pixelType = pixel_type;
@@ -522,7 +521,7 @@ Brick DoWarp::CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std
     brick.info.depth = depth;
     brick.info.stride_line = width * Utils::GetBytesPerPixel(pixel_type);
     brick.info.stride_plane = brick.info.stride_line * brick.info.height;
-    //brick.info.slice_id = slice_id;
+
     const uint64_t size_of_brick = brick.info.stride_plane * static_cast<uint64_t>(brick.info.depth);
     for (;;)
     {

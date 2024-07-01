@@ -191,7 +191,7 @@ private:
     bool IsSubTilingRequired(const IntSize3& size);
     std::vector<libCZI::IntRect> Create2dTiling(const libCZI::IntRect& rectangle);
     Brick CreateBrick(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth);
-    Brick CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth/*, int slice_id*/);
+    Brick CreateBrickAndWaitUntilAvailable(libCZI::PixelType pixel_type, std::uint32_t width, std::uint32_t height, std::uint32_t depth);
 
     void ProcessBrickCommon2(const Brick& brick, std::uint32_t brick_id, const Brick& destination_brick, const BrickCoordinateInfo& coordinate_info, std::uint32_t source_depth, const OutputBrickInfoRepository::TilingRectAndMandSceneIndex& rect_and_tile_identifier);
 
