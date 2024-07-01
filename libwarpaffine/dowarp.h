@@ -68,8 +68,8 @@ class DoWarp
         /// index.
         struct DestinationBrickInfo
         {
-            std::uint32_t brick_id;  ///< This id uniquely identifies the destination brick, and since there is a one-to-one correspondence between source and destination bricks, 
-                                     ///< it also uniquely identifies the source brick.
+            std::uint32_t brick_id; ///< This id uniquely identifies the destination brick, and since there is a one-to-one correspondence between source and destination bricks, 
+                                    ///< it also uniquely identifies the source brick.
             IntCuboid cuboid;
             std::vector<TilingRectAndMandSceneIndex> tiling;
         };
@@ -98,7 +98,7 @@ class DoWarp
         /// decide whether it is necessary to have a retiling-id in the output document.
         ///
         /// \returns    True if there been retiling on any destination brick, false if not.
-        [[nodiscard]] bool HasThereBeenRetilingOnAnyDestinationBrick() const { return this->has_there_been_a_retiling_on_any_destination_brick_; };
+        [[nodiscard]] bool HasThereBeenRetilingOnAnyDestinationBrick() const { return this->has_there_been_a_retiling_on_any_destination_brick_; }
     private:
         static std::vector<libCZI::IntRect> Create2dTiling(std::uint32_t max_extent, const libCZI::IntRect& rectangle);
     };
