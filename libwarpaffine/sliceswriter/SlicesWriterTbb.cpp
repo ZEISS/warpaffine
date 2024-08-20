@@ -46,7 +46,6 @@ void CziSlicesWriterTbb::AddAttachment(const std::shared_ptr<libCZI::IAttachment
     size_t size = 0;
     ai.ptrData = attachment->GetRawData(&size).get();
     ai.dataSize = size;
-    std::cout<<"adding attachment"<<std::endl;
     ai.SetContentFileType(attachment->GetAttachmentInfo().contentFileType);
     ai.contentGuid = attachment->GetAttachmentInfo().contentGuid;
     this->writer_->SyncAddAttachment(ai);
@@ -261,7 +260,7 @@ std::uint32_t CziSlicesWriterTbb::GetNumberOfPendingSliceWriteOperations()
 void CziSlicesWriterTbb::CopyMetadata(libCZI::IXmlNodeRead* rootSource, libCZI::IXmlNodeRw* rootDestination)
 {
     // what we do here is to simple copy the values of those nodes from the source to the destination
-    static constexpr array<const char*, 6> paths_to_copy =
+    static constexpr array<const char*, 5> paths_to_copy =
     {
         "Metadata/Information/Image/SizeX",
         "Metadata/Information/Image/SizeY",

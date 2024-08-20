@@ -536,9 +536,7 @@ int libmain(int argc, char** _argv)
         doWarp.DoOperation();
         WaitUntilDone(app_context, doWarp);
 
-std::cout<<"aaa"<<std::endl;
         reader->EnumerateAttachments([&writer, &reader](int index, const libCZI::AttachmentInfo& info){writer->AddAttachment(reader->ReadAttachment(index)); return true;});
-std::cout<<"xxx"<<std::endl;
 
         switch (const auto type_of_operation = app_context.GetCommandLineOptions().GetTypeOfOperation())
         {
