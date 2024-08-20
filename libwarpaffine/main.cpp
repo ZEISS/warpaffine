@@ -481,6 +481,7 @@ int libmain(int argc, char** _argv)
         }
 
         auto reader_and_stream = CreateCziReader(app_context);
+        
         if (!get<0>(reader_and_stream) || !get<1>(reader_and_stream))
         {
             return EXIT_FAILURE;
@@ -494,6 +495,8 @@ int libmain(int argc, char** _argv)
         }
 
         auto writer = CreateCziWriter(app_context);
+        auto reader = get<0>(reader_and_stream);
+
         auto brick_source = CreateCziBrickSource(app_context, get<0>(reader_and_stream), get<1>(reader_and_stream));
         auto warp_affine_engine = CreateWarpAffineEngine(app_context);
 
@@ -532,6 +535,10 @@ int libmain(int argc, char** _argv)
 
         doWarp.DoOperation();
         WaitUntilDone(app_context, doWarp);
+
+std::cout<<"aaa"<<std::endl;
+        reader->EnumerateAttachments([&writer, &reader](int index, const libCZI::AttachmentInfo& info){writer->AddAttachment(reader->ReadAttachment(index)); return true;});
+std::cout<<"xxx"<<std::endl;
 
         switch (const auto type_of_operation = app_context.GetCommandLineOptions().GetTypeOfOperation())
         {
