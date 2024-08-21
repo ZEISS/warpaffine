@@ -64,8 +64,8 @@ public:
     /// \param  add_slice_info Information describing the add slice.
     virtual void AddSlice(const AddSliceInfo& add_slice_info) = 0;
     
-    /// @brief Adds a attachment, i.e. a copy from a source document.
-    /// @param attachment The attachment to be added.
+    /// Adds an attachment, i.e. a copy from a source document.
+    /// \param attachment The attachment to be added.
     virtual void AddAttachment(const std::shared_ptr<libCZI::IAttachment>& attachment) = 0;
 
     /// Closes the output CZI-files. The specified metadata object (of the source document) is used

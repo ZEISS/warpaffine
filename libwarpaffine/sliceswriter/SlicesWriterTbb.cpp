@@ -42,13 +42,16 @@ void CziSlicesWriterTbb::AddSlice(const AddSliceInfo& add_slice_info)
 
 void CziSlicesWriterTbb::AddAttachment(const std::shared_ptr<libCZI::IAttachment>& attachment)
 {
-    AddAttachmentInfo ai = AddAttachmentInfo();
-    size_t size = 0;
-    ai.ptrData = attachment->GetRawData(&size).get();
-    ai.dataSize = size;
-    ai.SetContentFileType(attachment->GetAttachmentInfo().contentFileType);
-    ai.contentGuid = attachment->GetAttachmentInfo().contentGuid;
-    this->writer_->SyncAddAttachment(ai);
+    AddAttachmentInfo add_attachment_info;
+    const auto& attachment_info = attachment->GetAttachmentInfo();
+    add_attachment_info.contentGuid = attachment_info.contentGuid;
+    add_attachment_info.SetContentFileType(attachment_info.contentFileType);
+    add_attachment_info.SetName(attachment_info.name.c_str());
+    size_t size_of_data;
+    auto raw_data = attachment->GetRawData(&size_of_data);
+    add_attachment_info.ptrData = raw_data.get();
+    add_attachment_info.dataSize = static_cast<uint32_t>(size_of_data);
+    this->writer_->SyncAddAttachment(add_attachment_info);
 }
 
 void CziSlicesWriterTbb::WriteWorker()
