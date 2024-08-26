@@ -238,7 +238,7 @@ void CziSlicesWriterTbb::Close(const std::shared_ptr<libCZI::ICziMetadata>& sour
         }
 
         auto increment_node = metadata_builder_from_source->GetRootNode()->GetOrCreateChildNode("Metadata/Information/Image/Dimensions/Z/Positions/Interval/Increment");
-        if(increment_node && new_scaling_info->IsScaleZValid())
+        if (increment_node && new_scaling_info->IsScaleZValid())
         {
             double original_scaling_meters = new_scaling_info->scaleZ;
 
