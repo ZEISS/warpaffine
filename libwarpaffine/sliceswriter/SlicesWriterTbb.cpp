@@ -207,7 +207,6 @@ void CziSlicesWriterTbb::Close(const std::shared_ptr<libCZI::ICziMetadata>& sour
             MetadataUtils::WriteScalingInfo(metadata_builder.get(), *new_scaling_info);
         }
 
-
         if (tweak_metadata_hook)
         {
             tweak_metadata_hook(metadata_builder->GetRootNode().get());
