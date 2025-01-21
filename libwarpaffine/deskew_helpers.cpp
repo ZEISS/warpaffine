@@ -136,36 +136,35 @@ using namespace std;
 /*static*/Eigen::Matrix4d DeskewHelpers::GetTransformationMatrix_Deskew(const DeskewDocumentInfo& document_info)
 {
     /*
+     The image frames of the z-stack in the CZI correspond to measurement planes that are placed like
+     this in the sample:
 
-    The images are arranged like this:
+          y
+          ↑
+          | α=60° ╱       ╱       ╱
+          |      ╱       ╱       ╱
+          |     ╱       ╱       ╱
+          |    ╱       ╱       ╱
+          |   ╱       ╱       ╱
+          |  ╱       ╱       ╱
+          | ╱       ╱       ╱
+          |╱       ╱       ╱
+          +----------------------------→ z  (cover glass, corresponds to the y-axis of the stage but z in the CZI)
 
+     with an angle of α = 60° in the to the vertical and 90° - α to the cover glass. The deskew operation is a shear
+     transformation that shifts the images of the orthogonal z-stack along the measurement plane so that
+     they match the offsets in the placement above. The fundamental shear coefficient is simply sin(α),
+     which is scaled below as spacings of the z-stack in z- and x-y-direction are different.
 
-|   |--\    x    x    x    x
-    |   -- x    x    x    x
-    |  α  x    x    x    x
-    |    x    x    x    x
-    |   x    x    x    x
-    |  x    x    x    x
-    | x    x    x    x
-    |x    x    x    x
-
-    with an angle of α = 60° to the vertical.
-
+     Note: z_scaling is the physical distance the stage moved during the measurement, i.e., the distance of the
+     planes along the z-axis in the graph above and _NOT_ the orthogonal distance of the planes.
     */
+    double shear_in_pixels = sin(document_info.angle_in_radians) * document_info.z_scaling / document_info.xy_scaling;
 
-    // TODO(Jbl) : I am not sure where this factor of 0.5 comes from (=cos(60°)), or - the z-spacing
-    //              of the source-file is telling us by how much the hardware moved, not how far the z-slices
-    //              are apart from one another I suppose
-    double b = tan(DegreesToRadians(60)) * (document_info.z_scaling * cos(DegreesToRadians(60)));
+    Matrix4d matrix_shear;
+    matrix_shear << 1, 0, 0, 0, 0, 1, shear_in_pixels, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 
-    double b_in_pixels = b / document_info.xy_scaling;
-
-    double total_skew = b_in_pixels * (document_info.depth - 1);
-
-    Matrix4d matrix_skew;
-    matrix_skew << 1, 0, 0, 0, 0, 1, b_in_pixels, 0, 0, 0, 1, 0, 0, 0, 0, 1;
-
-    return matrix_skew;
+    return matrix_shear;
 }
 
 /*static*/Eigen::Matrix4d DeskewHelpers::GetTransformationMatrix_CoverglassTransform(const DeskewDocumentInfo& document_info, bool rotate_around_z_axis_by_90_degree)
@@ -311,4 +310,8 @@ using namespace std;
     integer_cuboid.height = static_cast<std::uint32_t>(llrint(ceil((float_cuboid.y_position - integer_cuboid.y_position) + float_cuboid.height)));
     integer_cuboid.depth = static_cast<std::uint32_t>(llrint(ceil((float_cuboid.z_position - integer_cuboid.z_position) + float_cuboid.depth)));
     return integer_cuboid;
+}
+
+/*static*/double DeskewHelpers::OrthogonalPlaneDistance(const DeskewDocumentInfo& document_info) {
+    return cos(document_info.angle_in_radians) * document_info.z_scaling;
 }
