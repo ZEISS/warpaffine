@@ -161,49 +161,37 @@ using namespace std;
     */
     double shear_in_pixels = sin(document_info.angle_in_radians) * document_info.z_scaling / document_info.xy_scaling;
 
-    Matrix4d matrix_shear;
-    matrix_shear << 1, 0, 0, 0, 0, 1, shear_in_pixels, 0, 0, 0, 1, 0, 0, 0, 0, 1;
+    Matrix4d shearing_matrix;
+    shearing_matrix << 1, 0, 0, 0, 0, 1, shear_in_pixels, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 
-    return matrix_shear;
+    return shearing_matrix;
 }
 
 /*static*/Eigen::Matrix4d DeskewHelpers::GetTransformationMatrix_CoverglassTransform(const DeskewDocumentInfo& document_info, bool rotate_around_z_axis_by_90_degree)
 {
-    // The shearing matrix gives us something like:
-    //
-    // z |
-    // |     xxxxxxxxxxx          z |
-    // |    xxxxxxxxxxx             |
-    // |   xxxxxxxxxxx              |  /y
-    // |  xxxxxxxxxxx               | /
-    // | xxxxxxxxxxx                |/
-    // |xxxxxxxxxxx                 -------> x
-    // --------------> y
+    // The coverglass transformation is constructed from several parts by matrix multiplication
+    // 1. mirroring on the x, y and z dimension
+    // 2. deskewing
+    // 3. scale the z-axis so that it matches the x-y-scaling
+    // 4. rotate it around the x-axis
 
-    const auto shearing_matrix = GetTransformationMatrix_Deskew(document_info);
-
-    double factor_to_scale_z = (document_info.z_scaling / 2) / document_info.xy_scaling;
-    Matrix4d scaling_matrix;
-    scaling_matrix << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, factor_to_scale_z, 0, 0, 0, 0, 1;
-
-
-    const double b = tan(DegreesToRadians(60)) * (document_info.z_scaling * cos(DegreesToRadians(60)));
-    const double b_in_pixels = b / document_info.xy_scaling;
-    const double total_skew = b_in_pixels * (document_info.depth - 1);
-
-    const double angle = RadiansToDegrees(atan(total_skew / (document_info.depth * factor_to_scale_z)));
-
+    // 1. Flip the coordinate axes to match the convention of the ZEN implementation
     const Matrix4d flip_y = GetTranslationMatrix(0, document_info.height / 2.0, 0) * GetScalingMatrix(1, -1, 1) * GetTranslationMatrix(0, -document_info.height / 2.0, 0);
     const Matrix4d flip_z = GetTranslationMatrix(0, 0, document_info.depth / 2.0) * GetScalingMatrix(1, 1, -1) * GetTranslationMatrix(0, 0, -document_info.depth / 2.0);
     const Matrix4d flip = flip_z * flip_y;
 
-    const auto rotation_around_x_axis = GetRotationAroundXAxis(DegreesToRadians(+angle + 90));
+    // 2. The deskewing matrix defines the shear part of the coverglass transform
+    const auto shearing_matrix = GetTransformationMatrix_Deskew(document_info);
 
-    // so, we have the following operations
-    // 1. do mirroring on the x, y and z (determined experimentally to match ZEN's result)
-    // 2. then, do the shearing
-    // 3. next, scale it so that scaling in x/y is the same as in z
-    // 4. and, finally rotate it (around x-axis)
+    // 3. The z-stack is scaled so that the z-spacing is equal to the xy-spacing.
+    const double factor_to_scale_z = OrthogonalPlaneDistance(document_info) / document_info.xy_scaling;
+    Matrix4d scaling_matrix;
+    scaling_matrix << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, factor_to_scale_z, 0, 0, 0, 0, 1;
+
+    // 4. And now we rotate the face of the z-stack to be parallel to the cover glass
+    const auto rotation_around_x_axis = GetRotationAroundXAxis(document_info.angle_in_radians + 0.5 * M_PI);
+
+    // construct the full transformation matrix
     Matrix4d m = rotation_around_x_axis * scaling_matrix * shearing_matrix * flip;
 
     if (rotate_around_z_axis_by_90_degree)
