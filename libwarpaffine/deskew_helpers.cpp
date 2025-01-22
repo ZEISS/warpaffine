@@ -136,28 +136,28 @@ using namespace std;
 /*static*/Eigen::Matrix4d DeskewHelpers::GetTransformationMatrix_Deskew(const DeskewDocumentInfo& document_info)
 {
     /*
-     The image frames of the z-stack in the CZI correspond to measurement planes that are placed like
-     this in the sample:
+    The image frames of the z-stack in the CZI correspond to measurement planes that are placed like
+    this in the sample:
 
-          y
-          ↑
-          | α=60° ╱       ╱       ╱
-          |      ╱       ╱       ╱
-          |     ╱       ╱       ╱
-          |    ╱       ╱       ╱
-          |   ╱       ╱       ╱
-          |  ╱       ╱       ╱
-          | ╱       ╱       ╱
-          |╱       ╱       ╱
-          +----------------------------→ z  (cover glass, corresponds to the y-axis of the stage but z in the CZI)
+        y
+        ↑
+        | α=60° ╱       ╱       ╱
+        |      ╱       ╱       ╱
+        |     ╱       ╱       ╱
+        |    ╱       ╱       ╱
+        |   ╱       ╱       ╱
+        |  ╱       ╱       ╱
+        | ╱       ╱       ╱
+        |╱       ╱       ╱
+        +----------------------------→ z  (cover glass, corresponds to the y-axis of the stage but z in the CZI)
 
-     with an angle of α = 60° to the vertical and 90° - α to the cover glass. The deskew operation is a shear
-     transformation that shifts the images of the orthogonal z-stack along the measurement plane so that
-     they match the offsets in the placement above. The fundamental shear coefficient is simply sin(α),
-     which is scaled below as spacings of the z-stack in z- and x-y-direction are different.
+    with an angle of α = 60° to the vertical and 90° - α to the cover glass. The deskew operation is a shear
+    transformation that shifts the images of the orthogonal z-stack along the measurement plane so that
+    they match the offsets in the placement above. The fundamental shear coefficient is simply sin(α),
+    which is scaled below as spacings of the z-stack in z- and x-y-direction are different.
 
-     Note: z_scaling is the physical distance the stage moved during the measurement, i.e., the distance of the
-     planes along the z-axis in the graph above and _NOT_ the orthogonal distance of the planes.
+    Note: z_scaling is the physical distance the stage moved during the measurement, i.e., the distance of the
+    planes along the z-axis in the graph above and _NOT_ the orthogonal distance of the planes.
     */
     const double shear_in_pixels = sin(document_info.illumination_angle_in_radians) * document_info.z_scaling / document_info.xy_scaling;
 
