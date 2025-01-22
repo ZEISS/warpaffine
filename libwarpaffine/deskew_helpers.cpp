@@ -151,7 +151,7 @@ using namespace std;
           |╱       ╱       ╱
           +----------------------------→ z  (cover glass, corresponds to the y-axis of the stage but z in the CZI)
 
-     with an angle of α = 60° in the to the vertical and 90° - α to the cover glass. The deskew operation is a shear
+     with an angle of α = 60° to the vertical and 90° - α to the cover glass. The deskew operation is a shear
      transformation that shifts the images of the orthogonal z-stack along the measurement plane so that
      they match the offsets in the placement above. The fundamental shear coefficient is simply sin(α),
      which is scaled below as spacings of the z-stack in z- and x-y-direction are different.
@@ -159,7 +159,7 @@ using namespace std;
      Note: z_scaling is the physical distance the stage moved during the measurement, i.e., the distance of the
      planes along the z-axis in the graph above and _NOT_ the orthogonal distance of the planes.
     */
-    double shear_in_pixels = sin(document_info.angle_in_radians) * document_info.z_scaling / document_info.xy_scaling;
+    const double shear_in_pixels = sin(document_info.illumination_angle_in_radians) * document_info.z_scaling / document_info.xy_scaling;
 
     Matrix4d shearing_matrix;
     shearing_matrix << 1, 0, 0, 0, 0, 1, shear_in_pixels, 0, 0, 0, 1, 0, 0, 0, 0, 1;
@@ -189,7 +189,7 @@ using namespace std;
     scaling_matrix << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, factor_to_scale_z, 0, 0, 0, 0, 1;
 
     // 4. And now we rotate the face of the z-stack to be parallel to the cover glass
-    const auto rotation_around_x_axis = GetRotationAroundXAxis(document_info.angle_in_radians + 0.5 * M_PI);
+    const auto rotation_around_x_axis = GetRotationAroundXAxis(document_info.illumination_angle_in_radians + 0.5 * M_PI);
 
     // construct the full transformation matrix
     Matrix4d m = rotation_around_x_axis * scaling_matrix * shearing_matrix * flip;
@@ -301,5 +301,5 @@ using namespace std;
 }
 
 /*static*/double DeskewHelpers::OrthogonalPlaneDistance(const DeskewDocumentInfo& document_info) {
-    return cos(document_info.angle_in_radians) * document_info.z_scaling;
+    return cos(document_info.illumination_angle_in_radians) * document_info.z_scaling;
 }
