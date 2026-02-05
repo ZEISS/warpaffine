@@ -164,6 +164,9 @@ IPP version: 2022.1.0 (r0xc8d62893) - ippIP AVX2 (l9)
   only the bricksource implementation `planereader2` supports this option, the other implementations will not report stage-positions anyway.
 * The option `--do_not_copy_attachments_from_source_to_destination` can be used to prevent copying attachments from the source document to the destination document. 
   By default, all attachments from the source are copied verbatim into the destination.
+* The option `--illumination-angle ANGLE` allows overriding the illumination angle used in the deskew transformation. The angle is specified in degrees and must be between 0 and 90.
+  This is the angle between the light sheet illumination and the vertical direction (the normal of the cover glass). If not specified, the default of 60 degrees is used.
+  In the future, this value may be read from document metadata, and this command-line option will then serve as an override.
  
 The exit code of the application is 0 (EXIT_SUCCESS) only if it ran to completion without any errors. In case of an error (of any kind) it will be <>0.  
 In case of circumstances which lead to an abnormal termination, information may be written to `stderr` (and this is not controlled by the `--verbosity` argument); output to `stderr` will

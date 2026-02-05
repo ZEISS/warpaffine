@@ -17,6 +17,7 @@ add_executable(
   warpaffine_unittests
   $<TARGET_OBJECTS:libwarpaffine>
  "brick_enumerator_tests.cpp"
+ "cmdlineoptions_tests.cpp"
  "czi_helpers_tests.cpp" 
  "mem_output_stream.h" 
  "mem_output_stream.cpp"  
@@ -26,7 +27,7 @@ add_executable(
  "utilities.cpp" 
  "xycoordinate_tests.cpp")
 
-target_include_directories(warpaffine_unittests PRIVATE ${IPP_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${LIBCZI_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(warpaffine_unittests PRIVATE ${IPP_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR} ${LIBCZI_INCLUDE_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/../libwarpaffine)
 target_compile_definitions(warpaffine_unittests PRIVATE _LIBCZISTATICLIB)
 set_target_properties(warpaffine_unittests PROPERTIES CXX_STANDARD 17)
 IF(WIN32) 
