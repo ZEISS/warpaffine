@@ -39,12 +39,18 @@ public:
     /// Converts an angle from degrees to radians.
     /// \param angle_in_degrees The angle in degrees.
     /// \returns The angle in radians.
-    static double DegreesToRadians(double angle_in_degrees);
+    static constexpr double DegreesToRadians(double angle_in_degrees)
+    {
+        return angle_in_degrees / 180.0 * Utilities::kPi;
+    }
 
     /// Converts an angle from radians to degrees.
     /// \param angle_in_radians The angle in radians.
     /// \returns The angle in degrees.
-    static double RadiansToDegrees(double angle_in_radians);
+    static constexpr double RadiansToDegrees(double angle_in_radians)
+    {
+        return angle_in_radians / Utilities::kPi * 180.0;
+    }
 
     static std::string InterpolationToInformativeString(Interpolation interpolation);
 
@@ -115,6 +121,10 @@ public:
     static int StrcmpCaseInsensitive(const char* a, const char* b);
     
     static libCZI::GUID GenerateGuid();
+
+private:
+    // C++17 lacks std::numbers::pi and M_PI is non-standard, so define a constexpr value here.
+    static constexpr double kPi = 3.14159265358979323846;
 };
 
 class IPropBag
