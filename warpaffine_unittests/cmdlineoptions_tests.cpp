@@ -39,7 +39,7 @@ TEST(CmdLineOptions, IlluminationAngleNotSpecified_ReturnsNullopt)
     CCmdLineOptions options;
     ArgvHelper args({ "warpaffine", "-s", "input.czi", "-d", "output.czi" });
 
-    const auto result = options.Parse(args.argc(), args.argv(), true);
+    const auto result = options.Parse(args.argc(), args.argv());
 
     ASSERT_EQ(result, CCmdLineOptions::ParseResult::OK);
     EXPECT_FALSE(options.GetIlluminationAngleOverride().has_value());
@@ -50,7 +50,7 @@ TEST(CmdLineOptions, IlluminationAngleSpecified_ReturnsValue)
     CCmdLineOptions options;
     ArgvHelper args({ "warpaffine", "-s", "input.czi", "-d", "output.czi", "--illumination-angle", "45" });
 
-    const auto result = options.Parse(args.argc(), args.argv(), true);
+    const auto result = options.Parse(args.argc(), args.argv());
 
     ASSERT_EQ(result, CCmdLineOptions::ParseResult::OK);
     ASSERT_TRUE(options.GetIlluminationAngleOverride().has_value());
@@ -62,7 +62,7 @@ TEST(CmdLineOptions, IlluminationAngleAt0Degrees_IsValid)
     CCmdLineOptions options;
     ArgvHelper args({ "warpaffine", "-s", "input.czi", "-d", "output.czi", "--illumination-angle", "0" });
 
-    const auto result = options.Parse(args.argc(), args.argv(), true);
+    const auto result = options.Parse(args.argc(), args.argv());
 
     ASSERT_EQ(result, CCmdLineOptions::ParseResult::OK);
     ASSERT_TRUE(options.GetIlluminationAngleOverride().has_value());
@@ -74,7 +74,7 @@ TEST(CmdLineOptions, IlluminationAngleAt90Degrees_IsValid)
     CCmdLineOptions options;
     ArgvHelper args({ "warpaffine", "-s", "input.czi", "-d", "output.czi", "--illumination-angle", "90" });
 
-    const auto result = options.Parse(args.argc(), args.argv(), true);
+    const auto result = options.Parse(args.argc(), args.argv());
 
     ASSERT_EQ(result, CCmdLineOptions::ParseResult::OK);
     ASSERT_TRUE(options.GetIlluminationAngleOverride().has_value());
@@ -86,7 +86,13 @@ TEST(CmdLineOptions, IlluminationAngleNegative_IsInvalid)
     CCmdLineOptions options;
     ArgvHelper args({ "warpaffine", "-s", "input.czi", "-d", "output.czi", "--illumination-angle", "-1" });
 
-    const auto result = options.Parse(args.argc(), args.argv(), true);
+    testing::internal::CaptureStderr();
+    testing::internal::CaptureStdout();
+    const auto result = options.Parse(args.argc(), args.argv());
+    const auto ignored_err = testing::internal::GetCapturedStderr();
+    const auto ignored_out = testing::internal::GetCapturedStdout();
+    (void)ignored_err;
+    (void)ignored_out;
 
     EXPECT_EQ(result, CCmdLineOptions::ParseResult::Error);
 }
@@ -96,7 +102,13 @@ TEST(CmdLineOptions, IlluminationAngleAbove90_IsInvalid)
     CCmdLineOptions options;
     ArgvHelper args({ "warpaffine", "-s", "input.czi", "-d", "output.czi", "--illumination-angle", "91" });
 
-    const auto result = options.Parse(args.argc(), args.argv(), true);
+    testing::internal::CaptureStderr();
+    testing::internal::CaptureStdout();
+    const auto result = options.Parse(args.argc(), args.argv());
+    const auto ignored_err = testing::internal::GetCapturedStderr();
+    const auto ignored_out = testing::internal::GetCapturedStdout();
+    (void)ignored_err;
+    (void)ignored_out;
 
     EXPECT_EQ(result, CCmdLineOptions::ParseResult::Error);
 }
@@ -106,7 +118,7 @@ TEST(CmdLineOptions, IlluminationAngleFractional_IsValid)
     CCmdLineOptions options;
     ArgvHelper args({ "warpaffine", "-s", "input.czi", "-d", "output.czi", "--illumination-angle", "60.5" });
 
-    const auto result = options.Parse(args.argc(), args.argv(), true);
+    const auto result = options.Parse(args.argc(), args.argv());
 
     ASSERT_EQ(result, CCmdLineOptions::ParseResult::OK);
     ASSERT_TRUE(options.GetIlluminationAngleOverride().has_value());

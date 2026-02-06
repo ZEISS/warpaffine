@@ -175,7 +175,7 @@ struct MemorySizeValidator : public CLI::Validator
 
 /*static*/const char* CCmdLineOptions::kDefaultCompressionOptions = "zstd1:ExplicitLevel=1;PreProcess=HiLoByteUnpack";
 
-CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv, bool suppress_error_output)
+CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
 {
     CLI::App app{ "Deskew-processing" };
 
@@ -367,18 +367,12 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv, bool 
     }
     catch (const CLI::CallForHelp& e)
     {
-        if (!suppress_error_output)
-        {
-            app.exit(e);
-        }
+        app.exit(e);
         return ParseResult::Exit;
     }
     catch (const CLI::ParseError& e)
     {
-        if (!suppress_error_output)
-        {
-            app.exit(e);
-        }
+        app.exit(e);
         return ParseResult::Error;
     }
 

@@ -61,9 +61,8 @@ public:
     /// \param          argc    The number of arguments.
     /// \param [in]     argv    Pointer to an array with the null-terminated, UTF8-encoded arguments.
     ///
-    /// \param          suppress_error_output True to suppress CLI error/help output.
     /// \returns    True if it succeeds, false if it fails.
-    [[nodiscard]] ParseResult Parse(int argc, char** argv, bool suppress_error_output = false);
+    [[nodiscard]] ParseResult Parse(int argc, char** argv);
 
     [[nodiscard]] std::wstring GetSourceCZIFilenameW() const;
     [[nodiscard]] std::wstring GetDestinationCZIFilenameW() const;
