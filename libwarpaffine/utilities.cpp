@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "utilities.h"
 #include "utilities_windows.h"
 #include <locale>
@@ -48,6 +50,16 @@ string Utilities::format_time_in_seconds(double seconds)
     ostringstream ss;
     ss << hours << "h " << std::setfill('0') << std::setw(2) << minutes << "m " << std::setw(2) << seconds_integer << "s";
     return ss.str();
+}
+
+double Utilities::DegreesToRadians(double angle_in_degrees)
+{
+    return angle_in_degrees / 180.0 * M_PI;
+}
+
+double Utilities::RadiansToDegrees(double angle_in_radians)
+{
+    return angle_in_radians / M_PI * 180.0;
 }
 
 std::string Utilities::FormatMemorySize(std::uint64_t size, const char* text_between_number_and_unit/*= nullptr*/)

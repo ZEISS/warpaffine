@@ -9,7 +9,7 @@
 #include <string>
 #include <map>
 #include <sstream>
-#include "angle_utils.h"
+#include "utilities.h"
 #include "inc_libCZI.h"
 
 /// This struct is used to uniquely identify a brick (within the document). A brick here is defined
@@ -147,13 +147,13 @@ struct DeskewDocumentInfo
     /// The angle between the light sheet illumination and the vertical direction,  i.e., the normal of the cover glass.
     /// This also defines the tilt of the measurement planes with respect to the vertical direction.
     /// Default is 60 degrees. Can be overridden via command-line or read from document metadata.
-    double illumination_angle_in_radians = AngleUtils::DegreesToRadians(60.0);
+    double illumination_angle_in_radians = Utilities::DegreesToRadians(60.0);
 
     /// Sets the illumination angle from a value in degrees.
     /// \param angle_in_degrees The illumination angle in degrees (0-90).
     void SetIlluminationAngleInDegrees(double angle_in_degrees)
     {
-        this->illumination_angle_in_radians = AngleUtils::DegreesToRadians(angle_in_degrees);
+        this->illumination_angle_in_radians = Utilities::DegreesToRadians(angle_in_degrees);
     }
 };
 

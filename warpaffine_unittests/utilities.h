@@ -8,7 +8,7 @@
 #include <warpafine_unittests_config.h>
 #include "../libwarpaffine/warpaffine/IWarpAffine.h"
 
-class Utilities
+class TestUtilities
 {
 public:
     struct GuardedBlock
@@ -28,7 +28,7 @@ public:
 
         bool IsEmpty() const { return this->userBuffer == nullptr; }
 
-        friend class Utilities;
+        friend class TestUtilities;
     };
 
     /// Allocate the specified amount of memory, with guard-pages (or more exactly "NoAccess"-pages)
