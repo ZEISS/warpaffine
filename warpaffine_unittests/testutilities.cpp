@@ -2,7 +2,8 @@
 //
 // SPDX-License-Identifier: MIT
 
-#include "utilities.h"
+#include "testutilities.h"
+#include <warpafine_unittests_config.h>
 #include <cstdint>
 #include <memory>
 

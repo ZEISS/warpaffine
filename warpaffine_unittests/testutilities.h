@@ -5,7 +5,6 @@
 #pragma once
 
 #include <functional>
-#include <warpafine_unittests_config.h>
 #include "../libwarpaffine/warpaffine/IWarpAffine.h"
 
 class TestUtilities

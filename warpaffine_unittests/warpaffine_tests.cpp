@@ -6,7 +6,7 @@
 #include <warpafine_unittests_config.h>
 #include "../libwarpaffine/warpaffine/IWarpAffine.h"
 
-#include "utilities.h"
+#include "testutilities.h"
 
 #include <math.h>
 
