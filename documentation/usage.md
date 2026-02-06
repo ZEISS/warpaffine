@@ -11,7 +11,7 @@ Deskew-processing
 warpaffine.exe [OPTIONS]
 
 
-  version: 0.6.1
+  version: 0.7.0
 
 OPTIONS:
   -h, --help        Print this help message and exit
@@ -104,11 +104,16 @@ OPTIONS:
                     Instruct not to copy CZI-attachments from the source to the
                     destination.
 
+      --illumination-angle ANGLE
+                    Override the illumination angle in degrees (0-90). This is
+                    the angle between the light sheet illumination and the
+                    vertical direction. If not specified, the default of 60
+                    degrees is used.
 
 
-libCZI version: 0.66.5 (built with MSVC 19.44.35214.0)
+libCZI version: 0.67.4 (built with MSVC 19.50.35723.0)
 stream-classes: windows_file_inputstream, c_runtime_file_inputstream
-TBB version: 2021.9.0
+TBB version: 2022.3.0
 IPP version: 2022.1.0 (r0xc8d62893) - ippIP AVX2 (l9)
 ```
 
