@@ -359,10 +359,12 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         ->option_text("ANGLE")
         ->check(CLI::Range(0.0, 90.0));
     app.add_flag("--allow-memory-oversubscription", allow_memory_oversubscription,
-        "Allow memory oversubscription (i.e. allow the application to use more memory than the size of the main memory). "
-        "If not specified, then operation will fail if insufficient main memory size is detected. If specified, operation is "
-        "attempted using the minimal required main memory size (and relying on the operating system to handle oversubscription "
-        "if the required main memory size exceeds the actual main memory size).");
+        "Allow the application to request more memory than physically available, "
+        "relying on the operating system's virtual memory management (paging). "
+        "\\nBy default, the operation aborts if detected physical memory is "
+        "insufficient. With this flag, processing continues using the minimum "
+        "required memory. \\nWarning: May cause significant performance "
+        "degradation or system instability.");
 
     auto formatter = make_shared<CustomFormatter>();
     app.formatter(formatter);
