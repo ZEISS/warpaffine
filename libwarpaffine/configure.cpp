@@ -55,7 +55,7 @@ bool Configure::DoConfiguration(const DeskewDocumentInfo& deskew_document_info, 
         if (this->allow_memory_oversubscription_)
         {
             // we allow memory oversubscription - but we give a warning about this, and we also adjust the "physical_memory_size_"
-            // to a higher value (which is the value we assume for the rest of the program). We use about ~8% above the "minimal_amount_of_memory_required".
+            // to a higher value (which is the value we assume for the rest of the program). We use about 1/12 (~8.3%) above the "minimal_amount_of_memory_required".
             const uint64_t adjusted_memory_size = minimal_amount_of_memory_required / 12 + minimal_amount_of_memory_required;
 
             this->app_context_.DoIfVerbosityGreaterOrEqual(

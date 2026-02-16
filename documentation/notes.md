@@ -7,9 +7,9 @@ The strategy currently used in warpaffine can be summarized as follows:
 * A custom allocator ([BrickAllocator](https://github.com/ZEISS/warpaffine/blob/main/libwarpaffine/BrickAllocator.h)) is used to manage memory for the input bricks, the output bricks and
  the compressed output brick (if applicable).
 * For this allocator, we reserve a fixed amount of memory (the "memory budget") that is used for the entire processing.
-* We define a high-water mark for the allocator - if memory usage is above this mark, then the reading the source is throttled.
+* We define a high-water mark for the allocator - if memory usage is above this mark, then reading the source is throttled.
 
-By default, we reserve rougly the main memory size of the machine as the memory budget for the BrickAllocator.
+By default, we reserve roughly the main memory size of the machine as the memory budget for the BrickAllocator.
 
 Note that there is a minimal amount of memory required for the allocator, which is determined by the granularity of the processing
 operations. This minimal amount is determined and checked for [here](https://github.com/ZEISS/warpaffine/blob/e1b47fa027f532fd6bfdbe56ad89fa0814b4f47b/libwarpaffine/configure.cpp#L42).  
