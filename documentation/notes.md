@@ -33,15 +33,35 @@ For the standard case (x-y scaling: 0.145 µm, z scaling: 0.200 µm) we have the
 
 *Multiply source z-count by this factor to get destination z-count.
 
-Example:
--------
+### Example
 
-Assume we have a source CZI with 1000 Z-slices, the pixel format is Gray16, and the largest tile in the source is 2048x400. We have a 
-scaling where above table applies, and we want to use the default max tile extent of 2048.   
-Then the minimal memory requirement is:
+> **Scenario:** A source CZI with 1000 Z-slices, Gray16 pixel format, largest tile 2048×400 pixels,  
+> using the default max tile extent of 2048 and standard scaling factors.
 
-Input brick:  2048 × 400 × 2 (bytes per pixel) × 1000 (Z-slices) = 1,638,400,000 bytes ≈ 1.53 GB  
-Output brick: 2048 × 2048 × 2 (bytes per pixel) × 1000 × 0.138 (Z-slice factor) = 1,157,627,904 bytes ≈ 1.08 GB
+---
 
-**Total: ≈ 2.60 GB**
+#### 📥 Input Brick Memory
+
+$$
+\underbrace{2048 \times 400}_{\text{tile size}} \times \underbrace{2}_{\text{bytes/pixel}} \times \underbrace{1000}_{\text{Z-slices}} = 1{,}638{,}400{,}000 \text{ bytes} \approx \mathbf{1.53\ GB}
+$$
+
+#### 📤 Output Brick Memory
+
+$$
+\underbrace{2048 \times 2048}_{\text{max tile extent}} \times \underbrace{2}_{\text{bytes/pixel}} \times \underbrace{1000 \times 0.138}_{\text{output Z-slices}} = 1{,}157{,}627{,}904 \text{ bytes} \approx \mathbf{1.08\ GB}
+$$
+
+---
+
+#### 📊 Summary
+
+| Component        | Dimensions         | Bytes/Pixel | Z-Slices | Size       |
+|:-----------------|:------------------:|:-----------:|:--------:|----------:|
+| Input Brick      | 2048 × 400         | 2           | 1000     | 1.53 GB   |
+| Output Brick     | 2048 × 2048        | 2           | 138      | 1.08 GB   |
+| **Total**        |                    |             |          | **2.60 GB** |
+
+> [!IMPORTANT]
+> This is the **minimum** memory required. The actual memory budget should be larger to allow for efficient pipelining.
 
