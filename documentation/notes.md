@@ -62,6 +62,3 @@ $$
 | Output Brick     | 2048 × 2048        | 2           | 138      | 1.08 GB   |
 | **Total**        |                    |             |          | **2.60 GB** |
 
-> [!IMPORTANT]
-> This is the **minimum** memory required. The actual memory budget should be larger to allow for efficient pipelining.
-
