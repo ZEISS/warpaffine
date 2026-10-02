@@ -4,6 +4,7 @@
 
 #include "czi_linear_brick_reader.h"
 #include "linearreading_orderhelper.h"
+#include "../czi_helpers.h"
 #include <optional>
 #include <map>
 #include <utility>
@@ -45,6 +46,37 @@ CziBrickReaderLinearReading::CziBrickReaderLinearReading(AppContext& context, st
     this->max_size_of_subblocks_queued_ = 2ULL * 1024 * 1024 * 1024;    // 2GB
 
     auto map_number_of_slices_per_brick_coordinate = this->GenerateReadInfo();
+
+    std::map<BrickCoordinate, std::pair<int, int>> first_subblock_by_brick;
+    this->reader_->EnumSubset(
+        nullptr,
+        nullptr,
+        true,
+        [&](int index, const SubBlockInfo& info)->bool
+        {
+            int z_coordinate = 0;
+            int t_coordinate = 0;
+            int c_coordinate = 0;
+            info.coordinate.TryGetPosition(DimensionIndex::Z, &z_coordinate);
+            info.coordinate.TryGetPosition(DimensionIndex::T, &t_coordinate);
+            info.coordinate.TryGetPosition(DimensionIndex::C, &c_coordinate);
+
+            const BrickCoordinate brick_coordinate(t_coordinate, c_coordinate);
+            const auto it = first_subblock_by_brick.find(brick_coordinate);
+            if (it == first_subblock_by_brick.end() || z_coordinate < it->second.first)
+            {
+                first_subblock_by_brick[brick_coordinate] = { z_coordinate, index };
+            }
+
+            return true;
+        });
+
+    for (const auto& item : first_subblock_by_brick)
+    {
+        const auto first_source_slice = this->reader_->ReadSubBlock(item.second.second);
+        this->map_acquisition_time_by_brick_[item.first] =
+            CziHelpers::GetAcquisitionTimeFromXmlMetadata(first_source_slice.get());
+    }
 
     this->handle_high_watermark_callback_ = this->context_.GetAllocator().AddHighWatermarkCrossedCallback(
         [this](bool above_high_watermark)->void
@@ -296,6 +328,12 @@ void CziBrickReaderLinearReading::ComposeBrickTask(const std::shared_ptr<IBrickR
     brick_coordinate_info.x_position = 0;
     brick_coordinate_info.y_position = 0;
     brick_coordinate_info.stage_x_position = brick_coordinate_info.stage_y_position = numeric_limits<double>::quiet_NaN();  // TODO(JBL): retrieve subblock-metadata
+    const auto acquisition_time = this->map_acquisition_time_by_brick_.find(
+        BrickCoordinate(brick_result->GetCoordinate(DimensionIndex::T), c_coordinate));
+    if (acquisition_time != this->map_acquisition_time_by_brick_.end())
+    {
+        brick_coordinate_info.acquisition_time = acquisition_time->second;
+    }
     this->deliver_brick_func_(brick, brick_coordinate_info);
     ++this->statistics_bricks_delivered;
     this->statistics_brick_data_delivered.fetch_add(brick.info.GetBrickDataSize());

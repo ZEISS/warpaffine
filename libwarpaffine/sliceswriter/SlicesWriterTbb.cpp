@@ -21,6 +21,26 @@ using namespace libCZI;
 
 namespace
 {
+    string EscapeXmlText(const string& value)
+    {
+        string escaped;
+        escaped.reserve(value.size());
+        for (const char character : value)
+        {
+            switch (character)
+            {
+            case '&': escaped += "&amp;"; break;
+            case '<': escaped += "&lt;"; break;
+            case '>': escaped += "&gt;"; break;
+            case '"': escaped += "&quot;"; break;
+            case '\'': escaped += "&apos;"; break;
+            default: escaped += character; break;
+            }
+        }
+
+        return escaped;
+    }
+
     string FormatDoubleForXml(double value)
     {
         // XSD requires the special floating-point values to be written as NaN, INF and -INF.
@@ -315,10 +335,13 @@ string CziSlicesWriterTbb::ConstructSubBlockMetadata(const SubBlockWriteInfo2& s
 
     // do we have information to be put into the metadata?
     if ((sub_block_write_info.add_slice_info.brick_id.has_value() && this->use_acquisition_tiles_)
-        || has_stage_position)
+        || has_stage_position
+        || sub_block_write_info.add_slice_info.acquisition_time.has_value())
     {
         std::string metadata;
-        metadata.reserve(192);
+        metadata.reserve(192 + (sub_block_write_info.add_slice_info.acquisition_time.has_value()
+            ? sub_block_write_info.add_slice_info.acquisition_time->size()
+            : 0));
         metadata += "<METADATA><Tags>";
 
         if (sub_block_write_info.add_slice_info.brick_id.has_value() && this->use_acquisition_tiles_)
@@ -354,6 +377,13 @@ string CziSlicesWriterTbb::ConstructSubBlockMetadata(const SubBlockWriteInfo2& s
             metadata += "<StageYPosition>";
             metadata += FormatDoubleForXml(sub_block_write_info.add_slice_info.stage_y_position);
             metadata += "</StageYPosition>";
+        }
+
+        if (sub_block_write_info.add_slice_info.acquisition_time.has_value())
+        {
+            metadata += "<AcquisitionTime>";
+            metadata += EscapeXmlText(sub_block_write_info.add_slice_info.acquisition_time.value());
+            metadata += "</AcquisitionTime>";
         }
 
         metadata += "</Tags></METADATA>";

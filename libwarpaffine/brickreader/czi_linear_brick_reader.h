@@ -30,6 +30,7 @@ private:
     std::shared_ptr<IStreamEx> input_stream_;
     libCZI::SubBlockStatistics statistics_;
     std::map<int, libCZI::PixelType> map_channelno_to_pixeltype_;
+    std::map<BrickCoordinate, std::optional<std::string>> map_acquisition_time_by_brick_;
     std::vector<std::thread> reader_threads_;
 
     std::function<void(const Brick&, const BrickCoordinateInfo&)> deliver_brick_func_;

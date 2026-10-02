@@ -179,6 +179,7 @@ IPP version: 2022.1.0 (r0xc8d62893) - ippIP AVX2 (l9)
 * The option `--do_not_write-stagepositions` controls whether information containing the stage-positions of the sub-blocks is written to the sub-block-metadata on output. Currently, this information
   is just copied from the input document, and it may be inconsistent in some cases. If this option is given, then the stage-positions are not written to the output document. Note that
   only the bricksource implementation `planereader2` supports this option, the other implementations will not report stage-positions anyway.
+* If a source sub-block has a `METADATA/Tags/AcquisitionTime` value, warpaffine copies it from the first source Z-slice (lowest Z coordinate) to every output sub-block generated from that stack.
 * The option `--do_not_copy_attachments_from_source_to_destination` can be used to prevent copying attachments from the source document to the destination document. 
   By default, all attachments from the source are copied verbatim into the destination.
 * The option `--illumination-angle ANGLE` allows overriding the illumination angle used in the deskew transformation. The angle is specified in degrees and must be between 0 and 90.
@@ -214,5 +215,4 @@ So, a complete commandine for a basic operation could look like this:
 ```
 
 [Here](https://asciinema.org/a/595898) is a screencast of the application in action.
-
 

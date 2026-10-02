@@ -213,4 +213,8 @@ public:
     /// \returns    If successful, a tuple with the x- and y-coordinates of the stage position; otherwise, a 
     ///             tuple with both coordinates set to NaN.
     static std::tuple<double, double> GetStagePositionFromXmlMetadata(const libCZI::ISubBlock* sub_block);
+
+    /// Try to retrieve the acquisition time from the specified sub-block's METADATA/Tags/AcquisitionTime node.
+    /// The returned value is UTF8-encoded.
+    static std::optional<std::string> GetAcquisitionTimeFromXmlMetadata(const libCZI::ISubBlock* sub_block);
 };

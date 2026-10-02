@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <optional>
 #include <limits>
+#include <string>
 
 /// A point with integer coordinates in 3D.
 struct IntPos3
@@ -110,6 +111,7 @@ struct SubblockXYM
     int y_position{ 0 };
     double stage_x_position{ std::numeric_limits<double>::quiet_NaN() };
     double stage_y_position{ std::numeric_limits<double>::quiet_NaN() };
+    std::optional<std::string> acquisition_time;
     std::optional<int> m_index;         ///< The m-index of the subblock.
     std::optional<int> scene_index;     ///< The scene-index of the subblock.
 };

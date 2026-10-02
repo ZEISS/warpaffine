@@ -164,10 +164,15 @@ void CziBrickReader2::DoBrick(const libCZI::CDimCoordinate& coordinate, /*int m_
 
     // now, read those subblocks
     map<int, std::shared_ptr<ISubBlock>> map_z_subblock;
+    std::optional<std::string> acquisition_time;
     for (const auto& item : map_z_subblockindex)
     {
         BrickDecodeInfo* decode_info = new BrickDecodeInfo();
         decode_info->subBlock = this->GetUnderlyingReaderBase()->ReadSubBlock(item.second);
+        if (item.first == map_z_subblockindex.begin()->first)
+        {
+            acquisition_time = CziHelpers::GetAcquisitionTimeFromXmlMetadata(decode_info->subBlock.get());
+        }
         ++this->statistics_number_of_compressed_subblocks_in_flight_;
 
         decode_info->brick_output_info = brick_output_data;
@@ -177,7 +182,7 @@ void CziBrickReader2::DoBrick(const libCZI::CDimCoordinate& coordinate, /*int m_
         ++this->pending_tasks_count_;
         this->GetContextBase().GetTaskArena()->AddTask(
             TaskType::BrickComposition,
-            [this, decode_info, coordinate, tile_identifier/*m_index*/, rectangle, brick]()->void
+            [this, decode_info, coordinate, tile_identifier/*m_index*/, rectangle, brick, acquisition_time]()->void
             {
                 const auto bitmap = decode_info->subBlock->CreateBitmap();
                 ++this->statistics_number_of_uncompressed_planes_in_flight_;
@@ -210,6 +215,7 @@ void CziBrickReader2::DoBrick(const libCZI::CDimCoordinate& coordinate, /*int m_
                         // we use an arbitrary sub-block (the one which happened to be the last one loaded) in order to add
                         //  information retrieved from sub-block-metadata
                         this->FillOutInformationFromSubBlockMetadata(decode_info->subBlock.get(), &brick_coordinate_info);
+                        brick_coordinate_info.acquisition_time = acquisition_time;
 
                         this->deliver_brick_func_(brick, brick_coordinate_info);
                     }

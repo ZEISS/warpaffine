@@ -484,3 +484,18 @@ static bool IsCoordinateInBrick(const libCZI::CDimCoordinate& brick_coordinate, 
 
     return std::make_tuple(std::numeric_limits<double>::quiet_NaN(), std::numeric_limits<double>::quiet_NaN());
 }
+
+/*static*/std::optional<std::string> CziHelpers::GetAcquisitionTimeFromXmlMetadata(const libCZI::ISubBlock* sub_block)
+{
+    const auto sub_block_metadata = libCZI::CreateSubBlockMetadataFromSubBlock(sub_block);
+    if (sub_block_metadata->IsXmlValid())
+    {
+        std::wstring acquisition_time;
+        if (sub_block_metadata->TryGetTagAsString(L"AcquisitionTime", &acquisition_time))
+        {
+            return libCZI::Utils::ConvertToUtf8(acquisition_time);
+        }
+    }
+
+    return std::nullopt;
+}

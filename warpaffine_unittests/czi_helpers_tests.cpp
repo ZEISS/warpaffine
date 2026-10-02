@@ -351,10 +351,10 @@ namespace
         return stream.str();
     }
 
-    string GetSubBlockMetadataXml(double stage_pos_x, double stage_pos_y)
+    string GetSubBlockMetadataXml(double stage_pos_x, double stage_pos_y, const string& acquisition_time = {})
     {
         string metadata;
-        metadata.reserve(192);
+        metadata.reserve(192 + acquisition_time.size());
         metadata += "<METADATA><Tags>";
         metadata += "<StageXPosition>";
         metadata += FormatDoubleForXml(stage_pos_x);
@@ -362,12 +362,18 @@ namespace
         metadata += "<StageYPosition>";
         metadata += FormatDoubleForXml(stage_pos_y);
         metadata += "</StageYPosition>";
+        if (!acquisition_time.empty())
+        {
+            metadata += "<AcquisitionTime>";
+            metadata += acquisition_time;
+            metadata += "</AcquisitionTime>";
+        }
         metadata += "</Tags></METADATA>";
         return metadata;
     }
 }
 
-TEST(Czi_Helpers, GetSubblocksAndCheckGetStagePosition)
+TEST(Czi_Helpers, GetSubblocksAndCheckStagePositionAndAcquisitionTime)
 {
     // first we create a CZI-document (Z=0...9 C=0) in memory, which
     //  we then load and run our test
@@ -400,7 +406,7 @@ TEST(Czi_Helpers, GetSubblocksAndCheckGetStagePosition)
 
         if (z % 2 == 0)
         {
-            string metadata = GetSubBlockMetadataXml(1.5 * z, -2.5 * z);
+            string metadata = GetSubBlockMetadataXml(1.5 * z, -2.5 * z, "2026-09-28T09:00:00Z");
             addSbBlkInfo.ptrSbBlkMetadata = metadata.c_str();
             addSbBlkInfo.sbBlkMetadataSize = static_cast<uint32_t>(metadata.size());
             writer->SyncAddSubBlock(addSbBlkInfo);
@@ -457,11 +463,15 @@ TEST(Czi_Helpers, GetSubblocksAndCheckGetStagePosition)
         {
             EXPECT_DOUBLE_EQ(get<0>(stage_position), 1.5 * z_coordinate);
             EXPECT_DOUBLE_EQ(get<1>(stage_position), -2.5 * z_coordinate);
+            const auto acquisition_time = CziHelpers::GetAcquisitionTimeFromXmlMetadata(sub_block.get());
+            ASSERT_TRUE(acquisition_time.has_value());
+            EXPECT_EQ(acquisition_time.value(), "2026-09-28T09:00:00Z");
         }
         else
         {
             EXPECT_TRUE(isnan(get<0>(stage_position)));
             EXPECT_TRUE(isnan(get<1>(stage_position)));
+            EXPECT_FALSE(CziHelpers::GetAcquisitionTimeFromXmlMetadata(sub_block.get()).has_value());
         }
     }
 }

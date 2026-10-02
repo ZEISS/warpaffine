@@ -5,6 +5,8 @@
 #pragma once
 
 #include <memory>
+#include <optional>
+#include <string>
 #include "../inc_libCZI.h"
 #include "../mmstream/IStreamEx.h"
 #include "../appcontext.h"
@@ -34,6 +36,7 @@ struct BrickCoordinateInfo
                                 ///< "METADATA/Tags/StageXPosition". If not present or not found, this has the value numerical_limits<double>::quiet_NaN().
     double stage_y_position;    ///< This comes from the subblock-XML-metadata of an arbitrary subblock in the brick, and it this the content of the element
                                 ///< "METADATA/Tags/StageYPosition". If not present or not found, this has the value numerical_limits<double>::quiet_NaN().
+    std::optional<std::string> acquisition_time; ///< The UTF8 value of METADATA/Tags/AcquisitionTime from the first source Z-slice.
 };
 
 /// This interface is used to abstract "reading from the source". It is representing the source, delivering bricks
