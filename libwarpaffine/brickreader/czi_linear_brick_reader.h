@@ -5,6 +5,7 @@
 #pragma once
 #include <mutex>
 #include <shared_mutex>
+#include <string>
 #include <thread>
 #include <limits>
 #include <vector>
