@@ -6,6 +6,7 @@
 #include "linearreading_orderhelper.h"
 #include "../czi_helpers.h"
 #include <optional>
+#include <string>
 #include <map>
 #include <utility>
 #include <memory>
