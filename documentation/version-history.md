@@ -22,3 +22,4 @@ version history                 {#version_history}
  0.8.1              | [22](https://github.com/ZEISS/warpaffine/pull/22) | remove dependency on tinyxml2
  0.8.2              | [23](https://github.com/ZEISS/warpaffine/pull/23) | add warp implementation 'fast'
  0.8.3              | [24](https://github.com/ZEISS/warpaffine/pull/24) | small performance improvement for 'fast' warp implementation
+ 0.9.0              | [26](https://github.com/ZEISS/warpaffine/pull/26) | propagate sub-block acquisition times to output
