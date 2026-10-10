@@ -186,7 +186,7 @@ IPP version: 2022.1.0 (r0xc8d62893) - ippIP AVX2 (l9)
   is just copied from the input document, and it may be inconsistent in some cases. If this option is given, then the stage-positions are not written to the output document. Note that
   only the bricksource implementation `planereader2` supports this option, the other implementations will not report stage-positions anyway.
 * The option `--do_not_write-acquisition-times` controls whether information containing the acquisition-times of the sub-blocks is written to the sub-block-metadata on output.
-  The information is copied it from the first source Z-slice sub-block (lowest Z coordinate) to every output sub-block generated from that stack. If this option is given, then the acquisition-times
+  The information is copied from the first source Z-slice sub-block (lowest Z coordinate) to every output sub-block generated from that stack. If this option is given, then the acquisition-times
   are not written to the output document. Note that only the bricksource implementation `planereader2` supports this option, the other implementations will not report acquisition-times anyway.
 * If a source sub-block has a `METADATA/Tags/AcquisitionTime` value, warpaffine copies it from the first source Z-slice (lowest Z coordinate) to every output sub-block generated from that stack.
 * The option `--do_not_copy_attachments_from_source_to_destination` can be used to prevent copying attachments from the source document to the destination document. 
