@@ -21,6 +21,26 @@ using namespace libCZI;
 
 namespace
 {
+    string EscapeXmlText(const string& value)
+    {
+        string escaped;
+        escaped.reserve(value.size());
+        for (const char character : value)
+        {
+            switch (character)
+            {
+            case '&': escaped += "&amp;"; break;
+            case '<': escaped += "&lt;"; break;
+            case '>': escaped += "&gt;"; break;
+            case '"': escaped += "&quot;"; break;
+            case '\'': escaped += "&apos;"; break;
+            default: escaped += character; break;
+            }
+        }
+
+        return escaped;
+    }
+
     string FormatDoubleForXml(double value)
     {
         // XSD requires the special floating-point values to be written as NaN, INF and -INF.
@@ -308,17 +328,19 @@ void CziSlicesWriterTbb::CopyMetadata(libCZI::IXmlNodeRead* rootSource, libCZI::
     }
 }
 
-string CziSlicesWriterTbb::ConstructSubBlockMetadata(const SubBlockWriteInfo2& sub_block_write_info)
+string CziSlicesWriterTbb::ConstructSubBlockMetadata(const SubBlockWriteInfo2& sub_block_write_info) const
 {
     const bool has_stage_position = !isnan(sub_block_write_info.add_slice_info.stage_x_position) &&
         !isnan(sub_block_write_info.add_slice_info.stage_y_position);
+    const bool has_acquisition_time = sub_block_write_info.add_slice_info.acquisition_time.IsValid();
 
     // do we have information to be put into the metadata?
     if ((sub_block_write_info.add_slice_info.brick_id.has_value() && this->use_acquisition_tiles_)
-        || has_stage_position)
+        || has_stage_position
+        || has_acquisition_time)
     {
         std::string metadata;
-        metadata.reserve(192);
+        metadata.reserve(192 + (has_acquisition_time ? 30 : 0));
         metadata += "<METADATA><Tags>";
 
         if (sub_block_write_info.add_slice_info.brick_id.has_value() && this->use_acquisition_tiles_)
@@ -336,8 +358,8 @@ string CziSlicesWriterTbb::ConstructSubBlockMetadata(const SubBlockWriteInfo2& s
                 static_cast<unsigned int>(guid.Data2),
                 static_cast<unsigned int>(guid.Data3),
                 static_cast<unsigned int>(guid.Data4[0]), static_cast<unsigned int>(guid.Data4[1]),
-                static_cast<unsigned int>(guid.Data4[2]), static_cast<unsigned int>(guid.Data4[3]), 
-                static_cast<unsigned int>(guid.Data4[4]), static_cast<unsigned int>(guid.Data4[5]), 
+                static_cast<unsigned int>(guid.Data4[2]), static_cast<unsigned int>(guid.Data4[3]),
+                static_cast<unsigned int>(guid.Data4[4]), static_cast<unsigned int>(guid.Data4[5]),
                 static_cast<unsigned int>(guid.Data4[6]), static_cast<unsigned int>(guid.Data4[7]));
 
             metadata += "<RetilingId>";
@@ -354,6 +376,13 @@ string CziSlicesWriterTbb::ConstructSubBlockMetadata(const SubBlockWriteInfo2& s
             metadata += "<StageYPosition>";
             metadata += FormatDoubleForXml(sub_block_write_info.add_slice_info.stage_y_position);
             metadata += "</StageYPosition>";
+        }
+
+        if (has_acquisition_time)
+        {
+            metadata += "<AcquisitionTime>";
+            metadata += sub_block_write_info.add_slice_info.acquisition_time.ToXmlString();
+            metadata += "</AcquisitionTime>";
         }
 
         metadata += "</Tags></METADATA>";

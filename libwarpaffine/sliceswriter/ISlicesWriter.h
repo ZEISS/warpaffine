@@ -61,6 +61,9 @@ public:
         /// The stage y-position of the subblock. This is used to write the stage position into the subblock metadata.
         /// A value of numeric_limits<double>::quiet_NaN() indicates that the stage position is not set.
         double stage_y_position;
+
+        /// The acquisition time copied from the first source Z-slice, if available.
+        libCZI::XmlDateTime acquisition_time;
     };
 
     /// Gets number of currently pending slice write operations.

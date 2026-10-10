@@ -171,6 +171,8 @@ void CziBrickReader::ReadBrick()
                 brick_coordinate_info.x_position = rectangle_of_brick.x;
                 brick_coordinate_info.y_position = rectangle_of_brick.y;
                 brick_coordinate_info.stage_x_position = brick_coordinate_info.stage_y_position = numeric_limits<double>::quiet_NaN();  // TODO(JBL): retrieve subblock-metadata
+                brick_coordinate_info.acquisition_time.SetToInvalid();  // TODO(JBL): retrieve subblock-metadata
+
                 this->deliver_brick_func_(
                     brick,
                     brick_coordinate_info);

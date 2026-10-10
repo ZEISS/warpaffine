@@ -16,8 +16,10 @@ set(LIBCZI_BUILD_PREFER_EXTERNALPACKAGE_EIGEN3 ON CACHE BOOL "" FORCE)
 
 FetchContent_Declare(
   libCZI
-  GIT_REPOSITORY https://github.com/ZEISS/libczi.git
-  GIT_TAG        16b30e7407f370e0dbbb10fe031b119fc938055c	# origin/main as of 1/30/2026, version 0.67.4
+#  GIT_REPOSITORY https://github.com/ZEISS/libczi.git
+#  GIT_TAG        16b30e7407f370e0dbbb10fe031b119fc938055c	# origin/main as of 1/30/2026, version 0.67.4
+  GIT_REPOSITORY https://github.com/ptahmose/libczi-zeiss.git
+  GIT_TAG		 jbl/TagToXmlDateTime
 )
 
 message(STATUS "Fetching libCZI")

@@ -388,6 +388,7 @@ void DoWarp::ProcessBrickCommon2(const Brick& brick, uint32_t brick_id, const Br
                 xym.y_position = rect_and_tile_identifier.rectangle.y + lround(transformed_and_projected_coordinate.y());
                 xym.stage_x_position = coordinate_info.stage_x_position;
                 xym.stage_y_position = coordinate_info.stage_y_position;
+                xym.acquisition_time = coordinate_info.acquisition_time;
 
                 // TODO(JBL): we better should use optional for this, not magic values
                 if (Utils::IsValidMindex(rect_and_tile_identifier.m_index))
@@ -428,6 +429,7 @@ void DoWarp::ProcessOutputSlice(OutputSliceToCompressTaskInfo* output_slice_task
     add_slice_info.y_position = xym.y_position;
     add_slice_info.stage_x_position = xym.stage_x_position;
     add_slice_info.stage_y_position = xym.stage_y_position;
+    add_slice_info.acquisition_time = xym.acquisition_time;
 
     // Only specify a brick_id if there has been a retiling on any destination brick. If it is not necessary,
     // then adding a retiling-id with the output-document is strictly superfluous - so we better don't want to put
