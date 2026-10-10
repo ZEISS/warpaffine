@@ -50,5 +50,5 @@ private:
     void WriteWorker();
     void CopyMetadata(libCZI::IXmlNodeRead* rootSource, libCZI::IXmlNodeRw* rootDestination);
     libCZI::GUID CreateRetilingIdWithZAndSlice(int z, std::uint32_t slice) const;
-    std::string ConstructSubBlockMetadata(const SubBlockWriteInfo2& sub_block_write_info);
+    std::string ConstructSubBlockMetadata(const SubBlockWriteInfo2& sub_block_write_info) const;
 };

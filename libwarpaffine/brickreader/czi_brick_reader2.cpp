@@ -162,17 +162,22 @@ void CziBrickReader2::DoBrick(const libCZI::CDimCoordinate& coordinate, /*int m_
     brick_output_data->counter.store(0);
     brick_output_data->output_brick = brick;
 
+    BrickMetadata brick_metadata;
+    brick_metadata.Clear();
+
     // now, read those subblocks
     map<int, std::shared_ptr<ISubBlock>> map_z_subblock;
-    std::optional<std::string> acquisition_time;
     for (const auto& item : map_z_subblockindex)
     {
         BrickDecodeInfo* decode_info = new BrickDecodeInfo();
         decode_info->subBlock = this->GetUnderlyingReaderBase()->ReadSubBlock(item.second);
+
+        // from the first subblock (in index-order, i.e. the z-index), we get the acquisition time (if available)
         if (item.first == map_z_subblockindex.begin()->first)
         {
-            acquisition_time = CziHelpers::GetAcquisitionTimeFromXmlMetadata(decode_info->subBlock.get());
+            brick_metadata = this->RetrieveBrickMetadataFromSubBlock(decode_info->subBlock.get());
         }
+
         ++this->statistics_number_of_compressed_subblocks_in_flight_;
 
         decode_info->brick_output_info = brick_output_data;
@@ -182,7 +187,7 @@ void CziBrickReader2::DoBrick(const libCZI::CDimCoordinate& coordinate, /*int m_
         ++this->pending_tasks_count_;
         this->GetContextBase().GetTaskArena()->AddTask(
             TaskType::BrickComposition,
-            [this, decode_info, coordinate, tile_identifier/*m_index*/, rectangle, brick, acquisition_time]()->void
+            [this, decode_info, coordinate, tile_identifier, rectangle, brick, brick_metadata]()->void
             {
                 const auto bitmap = decode_info->subBlock->CreateBitmap();
                 ++this->statistics_number_of_uncompressed_planes_in_flight_;
@@ -211,11 +216,7 @@ void CziBrickReader2::DoBrick(const libCZI::CDimCoordinate& coordinate, /*int m_
                         brick_coordinate_info.scene_index = tile_identifier.scene_index.value_or(std::numeric_limits<int>::min());
                         brick_coordinate_info.x_position = rectangle.x;
                         brick_coordinate_info.y_position = rectangle.y;
-
-                        // we use an arbitrary sub-block (the one which happened to be the last one loaded) in order to add
-                        //  information retrieved from sub-block-metadata
-                        this->FillOutInformationFromSubBlockMetadata(decode_info->subBlock.get(), &brick_coordinate_info);
-                        brick_coordinate_info.acquisition_time = acquisition_time;
+                        CziBrickReaderBase::FillOutInformationFromBrickMetadata(brick_metadata, &brick_coordinate_info);
 
                         this->deliver_brick_func_(brick, brick_coordinate_info);
                     }

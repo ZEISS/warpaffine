@@ -19,6 +19,17 @@ private:
     libCZI::SubBlockStatistics statistics_;
     std::map<int, libCZI::PixelType> map_channelno_to_pixeltype_;
     std::shared_ptr<libCZI::ICZIReader> underlying_reader_;
+protected:
+    /// This structure gathers the metadata of a brick. The metadata is provided by the reader, and
+    /// attached to the output of the brick reader.
+    struct BrickMetadata
+    {
+        double stage_position_x;
+        double stage_position_y;
+        libCZI::XmlDateTime acquisition_datetime;
+
+        void Clear();
+    };
 public:
     CziBrickReaderBase() = delete;
 
@@ -50,21 +61,20 @@ public:
         return this->map_channelno_to_pixeltype_[c];
     }
 
-    /// Try to get the stage position from sub block metadata. This method
-    /// will return the stage position if it is available in the sub block metadata and
-    /// if this option is enabled in the application context. If the stage position is not available
-    /// or the option is disabled, it will return (NaN, NaN) as a default value.
+    /// Retrieves stage-position and acquisition-time metadata from a sub block.
+    /// Stage-position and acquisition-time metadata are read only when the corresponding
+    /// options are enabled in the application context. Otherwise, the returned metadata
+    /// contains invalid/default values.
     ///
-    /// \param  sub_block   The sub block.
+    /// \param  sub_block   The sub block from which to retrieve the metadata.
     ///
-    /// \returns    The stage position from sub block metadata if available and enabled;  (NaN, NaN) otherwise.
-    std::tuple<double, double> GetStagePositionFromSubBlockMetadata(const libCZI::ISubBlock* sub_block);
+    /// \returns    The brick metadata retrieved from the sub block.
+    BrickMetadata RetrieveBrickMetadataFromSubBlock(const libCZI::ISubBlock* sub_block);
 
-    /// Fill out information about the stage-position in the BrickCoordinateInfo structure. This method
-    /// will either fill out the respective fields in the BrickCoordinateInfo structure with the actual
-    /// stage position or set the fields to NaN if the stage position is not available.
+    /// Fills out the metadata fields in a BrickCoordinateInfo structure.
+    /// This copies the stage position and acquisition time from the supplied brick metadata.
     ///
-    /// \param          sub_block               The sub block.
-    /// \param [out]    brick_coordinate_info   The information structure to fill out the stage position fields.
-    void FillOutInformationFromSubBlockMetadata(const libCZI::ISubBlock* sub_block, BrickCoordinateInfo* brick_coordinate_info);
+    /// \param          brick_metadata          The brick metadata to copy.
+    /// \param [out]    brick_coordinate_info   The information structure to fill out.
+    static void FillOutInformationFromBrickMetadata(const BrickMetadata& brick_metadata, BrickCoordinateInfo* brick_coordinate_info);
 };

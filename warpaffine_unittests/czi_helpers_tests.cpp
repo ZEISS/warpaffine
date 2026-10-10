@@ -464,14 +464,14 @@ TEST(Czi_Helpers, GetSubblocksAndCheckStagePositionAndAcquisitionTime)
             EXPECT_DOUBLE_EQ(get<0>(stage_position), 1.5 * z_coordinate);
             EXPECT_DOUBLE_EQ(get<1>(stage_position), -2.5 * z_coordinate);
             const auto acquisition_time = CziHelpers::GetAcquisitionTimeFromXmlMetadata(sub_block.get());
-            ASSERT_TRUE(acquisition_time.has_value());
-            EXPECT_EQ(acquisition_time.value(), "2026-09-28T09:00:00Z");
+            ASSERT_TRUE(acquisition_time.IsValid());
+            EXPECT_EQ(acquisition_time.ToXmlString(), "2026-09-28T09:00:00Z");
         }
         else
         {
             EXPECT_TRUE(isnan(get<0>(stage_position)));
             EXPECT_TRUE(isnan(get<1>(stage_position)));
-            EXPECT_FALSE(CziHelpers::GetAcquisitionTimeFromXmlMetadata(sub_block.get()).has_value());
+            EXPECT_FALSE(CziHelpers::GetAcquisitionTimeFromXmlMetadata(sub_block.get()).IsValid());
         }
     }
 }

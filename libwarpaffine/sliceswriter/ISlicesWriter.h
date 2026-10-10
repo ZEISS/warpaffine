@@ -63,7 +63,7 @@ public:
         double stage_y_position;
 
         /// The acquisition time copied from the first source Z-slice, if available.
-        std::optional<std::string> acquisition_time;
+        libCZI::XmlDateTime acquisition_time;
     };
 
     /// Gets number of currently pending slice write operations.

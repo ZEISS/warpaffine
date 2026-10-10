@@ -4,7 +4,6 @@
 
 #include "czi_linear_brick_reader.h"
 #include "linearreading_orderhelper.h"
-#include "../czi_helpers.h"
 #include <optional>
 #include <map>
 #include <utility>
@@ -46,37 +45,6 @@ CziBrickReaderLinearReading::CziBrickReaderLinearReading(AppContext& context, st
     this->max_size_of_subblocks_queued_ = 2ULL * 1024 * 1024 * 1024;    // 2GB
 
     auto map_number_of_slices_per_brick_coordinate = this->GenerateReadInfo();
-
-    std::map<BrickCoordinate, std::pair<int, int>> first_subblock_by_brick;
-    this->reader_->EnumSubset(
-        nullptr,
-        nullptr,
-        true,
-        [&](int index, const SubBlockInfo& info)->bool
-        {
-            int z_coordinate = 0;
-            int t_coordinate = 0;
-            int c_coordinate = 0;
-            info.coordinate.TryGetPosition(DimensionIndex::Z, &z_coordinate);
-            info.coordinate.TryGetPosition(DimensionIndex::T, &t_coordinate);
-            info.coordinate.TryGetPosition(DimensionIndex::C, &c_coordinate);
-
-            const BrickCoordinate brick_coordinate(t_coordinate, c_coordinate);
-            const auto it = first_subblock_by_brick.find(brick_coordinate);
-            if (it == first_subblock_by_brick.end() || z_coordinate < it->second.first)
-            {
-                first_subblock_by_brick[brick_coordinate] = { z_coordinate, index };
-            }
-
-            return true;
-        });
-
-    for (const auto& item : first_subblock_by_brick)
-    {
-        const auto first_source_slice = this->reader_->ReadSubBlock(item.second.second);
-        this->map_acquisition_time_by_brick_[item.first] =
-            CziHelpers::GetAcquisitionTimeFromXmlMetadata(first_source_slice.get());
-    }
 
     this->handle_high_watermark_callback_ = this->context_.GetAllocator().AddHighWatermarkCrossedCallback(
         [this](bool above_high_watermark)->void
@@ -149,7 +117,7 @@ std::map<BrickCoordinate, std::uint32_t> CziBrickReaderLinearReading::GenerateRe
 
 /*virtual*/bool CziBrickReaderLinearReading::IsDone()
 {
-    bool b =  this->isDone_.load() && this->pending_tasks_count_.load() == 0 && this->statistics_number_of_uncompressed_planes_in_flight_.load() == 0 && this->statistics_number_of_compressed_subblocks_in_flight_.load() == 0;
+    bool b = this->isDone_.load() && this->pending_tasks_count_.load() == 0 && this->statistics_number_of_uncompressed_planes_in_flight_.load() == 0 && this->statistics_number_of_compressed_subblocks_in_flight_.load() == 0;
     if (b)
     {
         this->context_.WriteDebugString("CziBrickReaderLinearReading::IsDone");
@@ -266,7 +234,7 @@ void CziBrickReaderLinearReading::DecompressTask(const std::shared_ptr<libCZI::I
     {
         // ...and one uncompressed subblock more around (and we only increment our counter
         //    if we actually "keep" this subblock)
-        ++this->statistics_number_of_uncompressed_planes_in_flight_;     
+        ++this->statistics_number_of_uncompressed_planes_in_flight_;
         BrickBucketManager::SliceInfo slice_info;
         slice_info.bitmap = std::move(bitmap);
         slice_info.x_position = subblock->GetSubBlockInfo().logicalRect.x;
@@ -324,16 +292,11 @@ void CziBrickReaderLinearReading::ComposeBrickTask(const std::shared_ptr<IBrickR
     // and, finally, deliver the brick
     BrickCoordinateInfo brick_coordinate_info;
     brick_coordinate_info.coordinate = dim_coordinate;
-    brick_coordinate_info.mIndex = numeric_limits<int>::max();      
+    brick_coordinate_info.mIndex = numeric_limits<int>::max();
     brick_coordinate_info.x_position = 0;
     brick_coordinate_info.y_position = 0;
     brick_coordinate_info.stage_x_position = brick_coordinate_info.stage_y_position = numeric_limits<double>::quiet_NaN();  // TODO(JBL): retrieve subblock-metadata
-    const auto acquisition_time = this->map_acquisition_time_by_brick_.find(
-        BrickCoordinate(brick_result->GetCoordinate(DimensionIndex::T), c_coordinate));
-    if (acquisition_time != this->map_acquisition_time_by_brick_.end())
-    {
-        brick_coordinate_info.acquisition_time = acquisition_time->second;
-    }
+    brick_coordinate_info.acquisition_time.SetToInvalid();
     this->deliver_brick_func_(brick, brick_coordinate_info);
     ++this->statistics_bricks_delivered;
     this->statistics_brick_data_delivered.fetch_add(brick.info.GetBrickDataSize());

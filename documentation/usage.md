@@ -11,7 +11,7 @@ Deskew-processing
 warpaffine.exe [OPTIONS]
 
 
-  version: 0.8.2
+  version: 0.9.0
 
 OPTIONS:
   -h, --help        Print this help message and exit
@@ -100,6 +100,10 @@ OPTIONS:
                     Instruct not to add stage-position to subblock-metadata if
                     provided.
 
+      --do_not_write-acquisition-times
+                    Instruct not to add acquisition-time to subblock-metadata if
+                    provided.
+
       --do_not_copy_attachments_from_source_to_destination
                     Instruct not to copy CZI-attachments from the source to the
                     destination.
@@ -120,9 +124,11 @@ OPTIONS:
                     Warning: May cause significant performance degradation or
                     system instability.
 
-libCZI version: 0.67.4 (built with MSVC 19.50.35723.0)
+
+
+libCZI version: 0.70.0 (built with MSVC 19.51.36260.0)
 stream-classes: windows_file_inputstream, c_runtime_file_inputstream
-TBB version: 2022.3.0
+TBB version: 2023.1.0
 IPP version: 2022.1.0 (r0xc8d62893) - ippIP AVX2 (l9)
 ```
 
@@ -179,6 +185,9 @@ IPP version: 2022.1.0 (r0xc8d62893) - ippIP AVX2 (l9)
 * The option `--do_not_write-stagepositions` controls whether information containing the stage-positions of the sub-blocks is written to the sub-block-metadata on output. Currently, this information
   is just copied from the input document, and it may be inconsistent in some cases. If this option is given, then the stage-positions are not written to the output document. Note that
   only the bricksource implementation `planereader2` supports this option, the other implementations will not report stage-positions anyway.
+* The option `--do_not_write-acquisition-times` controls whether information containing the acquisition-times of the sub-blocks is written to the sub-block-metadata on output.
+  The information is copied it from the first source Z-slice sub-block (lowest Z coordinate) to every output sub-block generated from that stack. If this option is given, then the acquisition-times
+  are not written to the output document. Note that only the bricksource implementation `planereader2` supports this option, the other implementations will not report acquisition-times anyway.
 * If a source sub-block has a `METADATA/Tags/AcquisitionTime` value, warpaffine copies it from the first source Z-slice (lowest Z coordinate) to every output sub-block generated from that stack.
 * The option `--do_not_copy_attachments_from_source_to_destination` can be used to prevent copying attachments from the source document to the destination document. 
   By default, all attachments from the source are copied verbatim into the destination.

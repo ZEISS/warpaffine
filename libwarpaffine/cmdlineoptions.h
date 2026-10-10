@@ -42,6 +42,7 @@ private:
     bool override_check_for_skewed_source_{ false };
     bool use_acquisition_tiles_{ false };
     bool write_stage_positions_in_subblock_metadata_{ true };
+    bool write_acquisition_time_in_subblock_metadata_{ true };
     bool copy_attachments_from_source_to_destination_{ true };
     bool allow_memory_oversubscription_{ false };
     std::string source_stream_class_;
@@ -94,6 +95,7 @@ public:
     [[nodiscard]] bool GetOverrideCheckForSkewedSourceDocument() const { return this->override_check_for_skewed_source_; }
     [[nodiscard]] bool GetUseAcquisitionTiles() const { return this->use_acquisition_tiles_; }
     [[nodiscard]] bool GetWriteStagePositionsInSubblockMetadata() const { return this->write_stage_positions_in_subblock_metadata_; }
+    [[nodiscard]] bool GetWriteAcquisitionTimeInSubblockMetadata() const { return this->write_acquisition_time_in_subblock_metadata_; }
     [[nodiscard]] bool GetCopyAttachmentsFromSourceToDestination() const { return this->copy_attachments_from_source_to_destination_; }
     [[nodiscard]] bool GetAllowMemoryOversubscription() const { return this->allow_memory_oversubscription_; }
 
