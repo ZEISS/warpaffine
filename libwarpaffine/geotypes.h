@@ -11,6 +11,8 @@
 #include <optional>
 #include <limits>
 
+#include "inc_libCZI.h"
+
 /// A point with integer coordinates in 3D.
 struct IntPos3
 {
@@ -51,7 +53,8 @@ struct IntCuboid
     /// \param  d   The length in z-direction (depth).
     IntCuboid(int x, int y, int z, std::uint32_t w, std::uint32_t h, std::uint32_t d)
         : x_position(x), y_position(y), z_position(z), width(w), height(h), depth(d)
-    {}
+    {
+    }
 
     int     x_position{ 0 };    ///< The x-position of the edge of the cuboid.
     int     y_position{ 0 };    ///< The y-position of the edge of the cuboid.
@@ -84,8 +87,8 @@ struct IntCuboid
     /// Query if this cuboid is empty (has zero volume).
     /// \returns    True if the cuboid is empty, false if not.
     inline bool IsEmpty() const
-    { 
-        return this->width == 0 || this->height == 0 || this->depth == 0; 
+    {
+        return this->width == 0 || this->height == 0 || this->depth == 0;
     }
 };
 
@@ -106,10 +109,20 @@ struct DoubleCuboid
 /// as well.
 struct SubblockXYM
 {
-    int x_position{ 0 };
-    int y_position{ 0 };
-    double stage_x_position{ std::numeric_limits<double>::quiet_NaN() };
-    double stage_y_position{ std::numeric_limits<double>::quiet_NaN() };
-    std::optional<int> m_index;         ///< The m-index of the subblock.
-    std::optional<int> scene_index;     ///< The scene-index of the subblock.
+    SubblockXYM() :
+        x_position(0),
+        y_position(0),
+        stage_x_position(std::numeric_limits<double>::quiet_NaN()),
+        stage_y_position(std::numeric_limits<double>::quiet_NaN())
+    {
+        this->acquisition_time.SetToInvalid();
+    }
+
+    int x_position;
+    int y_position;
+    double stage_x_position;
+    double stage_y_position;
+    libCZI::XmlDateTime acquisition_time;   ///< The XML date/time value of METADATA/Tags/AcquisitionTime from the first source Z-slice.
+    std::optional<int> m_index;             ///< The m-index of the subblock.
+    std::optional<int> scene_index;         ///< The scene-index of the subblock.
 };

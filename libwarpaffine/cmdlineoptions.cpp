@@ -274,6 +274,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     bool override_check_for_skewed_source = false;
     bool use_acquisition_tiles = false;
     bool do_not_write_stage_positions_in_subblock_metadata = false;
+    bool do_not_write_acquisition_time_in_subblock_metadata = false;
     bool do_not_copy_attachments_from_source_to_destination = false;
     double illumination_angle_degrees = std::numeric_limits<double>::quiet_NaN();
     bool allow_memory_oversubscription = false;
@@ -352,6 +353,8 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
         "Adds metadata to identify which subblocks were split during processing, but can be treated as one contiguous area.");
     app.add_flag("--do_not_write-stagepositions", do_not_write_stage_positions_in_subblock_metadata,
         "Instruct not to add stage-position to subblock-metadata if provided.");
+    app.add_flag("--do_not_write-acquisition-times", do_not_write_acquisition_time_in_subblock_metadata,
+        "Instruct not to add acquisition-time to subblock-metadata if provided.");
     app.add_flag("--do_not_copy_attachments_from_source_to_destination", do_not_copy_attachments_from_source_to_destination,
         "Instruct not to copy CZI-attachments from the source to the destination.");
     app.add_option("--illumination-angle", illumination_angle_degrees,
@@ -402,6 +405,7 @@ CCmdLineOptions::ParseResult CCmdLineOptions::Parse(int argc, char** argv)
     this->override_check_for_skewed_source_ = override_check_for_skewed_source;
     this->use_acquisition_tiles_ = use_acquisition_tiles;
     this->write_stage_positions_in_subblock_metadata_ = !do_not_write_stage_positions_in_subblock_metadata;
+    this->write_acquisition_time_in_subblock_metadata_ = !do_not_write_acquisition_time_in_subblock_metadata;
     this->copy_attachments_from_source_to_destination_ = !do_not_copy_attachments_from_source_to_destination;
     this->source_stream_class_ = argument_source_stream_class;
     this->allow_memory_oversubscription_ = allow_memory_oversubscription;
