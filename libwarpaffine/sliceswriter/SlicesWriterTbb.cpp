@@ -21,26 +21,6 @@ using namespace libCZI;
 
 namespace
 {
-    string EscapeXmlText(const string& value)
-    {
-        string escaped;
-        escaped.reserve(value.size());
-        for (const char character : value)
-        {
-            switch (character)
-            {
-            case '&': escaped += "&amp;"; break;
-            case '<': escaped += "&lt;"; break;
-            case '>': escaped += "&gt;"; break;
-            case '"': escaped += "&quot;"; break;
-            case '\'': escaped += "&apos;"; break;
-            default: escaped += character; break;
-            }
-        }
-
-        return escaped;
-    }
-
     string FormatDoubleForXml(double value)
     {
         // XSD requires the special floating-point values to be written as NaN, INF and -INF.
